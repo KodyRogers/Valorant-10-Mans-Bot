@@ -46,8 +46,8 @@ async def view(ctx):
 # ==========================
 # Link RIOT Account
 # ==========================
-@bot.command()
-async def link(ctx, *, riot_id):
+@bot.command(name="link")
+async def link_riot(ctx, riot_id: str):
     print("link working", riot_id)
     #TODO
     
