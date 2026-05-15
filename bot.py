@@ -1,7 +1,14 @@
 import discord
 from discord.ext import commands
 
-from config import DISCORD_TOKEN
+import models
+from config import DISCORD_TOKEN, HENRIK_API_KEY
+from valorant_api import HenrikAPI
+from queue_manager import QueueManager
+from database import init_db, SessionLocal
+from models import Player, Queue
+
+from sqlalchemy import select, delete
 
 # Intents
 intents = discord.Intents.default()
@@ -11,13 +18,18 @@ intents.members = True
 # Bot Setup
 bot = commands.Bot(command_prefix = "!", intents = intents)
 
+# API and Queue Manager Instances
+vapi = HenrikAPI(HENRIK_API_KEY)
+queue_manager = QueueManager()
+
 #DB
 # TODO
 
 @bot.event
 async def on_ready():
+    await init_db()
+    print("Database initialized.")
     print(f"Logged in as {bot.user}")
-    # TODO ADD DB
     
 # ==========================
 # JOIN QUEUE
@@ -49,7 +61,48 @@ async def view(ctx):
 @bot.command(name="link")
 async def link_riot(ctx, riot_id: str):
     print("link working", riot_id)
-    #TODO
+    split_id = riot_id.split("#")
+    if len(split_id) != 2:
+        await ctx.send("Invalid format. Please use `!link RiotName#Tag`.")
+        return
+    
+    name = split_id[0]
+    tag = split_id[1]
+    
+    response = vapi.get_account(name, tag)
+    if response is None:
+        await ctx.send("Could not find Riot account. Please check the name and tag and try again.")
+        return
+    
+    discord_id = str(ctx.author.id)
+    
+    async with SessionLocal() as session:
+        # Check if player already exists
+        result = await session.execute(
+            select(Player).where(Player.discord_id == discord_id)
+        )
+
+        player = result.scalar_one_or_none()
+
+        if player:
+            # Update existing account
+            player.riot_name = name
+            player.riot_tag = tag
+        else:
+            # Create new player
+            new_player = Player(
+                discord_id=discord_id,
+                riot_name=name,
+                riot_tag=tag
+            )
+
+            session.add(new_player)
+
+        await session.commit()
+
+        await ctx.send(f"Riot account `{name}#{tag}` linked successfully.")
+        
+    
     
 # ===================================
 # FORCE START

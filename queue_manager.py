@@ -1,4 +1,4 @@
-class queue_manager:
+class QueueManager:
     def __init__(self):
         self.max_queue_size = 10
         self.queue = []
