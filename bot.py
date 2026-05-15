@@ -59,7 +59,7 @@ async def view(ctx):
 # Link RIOT Account
 # ==========================
 @bot.command(name="link")
-async def link_riot(ctx, riot_id: str):
+async def link_riot(ctx, *,riot_id: str):
     print("link working", riot_id)
     split_id = riot_id.split("#")
     if len(split_id) != 2:
