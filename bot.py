@@ -36,16 +36,53 @@ async def on_ready():
 # ==========================
 @bot.command()
 async def join(ctx):
-    print("join working")
-    #TODO
+    
+    user_id = str(ctx.author.id)
+    username = ctx.author.name
+    
+    async with SessionLocal() as session:
+        # Check if player has linked their Riot account
+        result = await session.execute(
+            select(Player).where(Player.discord_id == user_id)
+        )
+        player = result.scalar_one_or_none()
+        
+        if not player:
+            await ctx.send("You need to link your Riot account before joining the queue. Use `!link RiotName#Tag`.")
+            return
+    
+    message = queue_manager.add_player(user_id, username)
+    if "has been added" in message:
+        # Add player to database queue
+        async with SessionLocal() as session:
+            queue_entry = Queue(discord_id=user_id)
+            session.add(queue_entry)
+            await session.commit()
+        
+    await ctx.send(message)
+                                
 
 # ==========================
 # Leave Queue
 # ==========================
 @bot.command()
 async def leave(ctx):
-    print("leave command")
-    #TODO
+    user_id = str(ctx.author.id)
+    username = ctx.author.display_name
+
+    # Remove from queue manager
+    message = queue_manager.remove_player(user_id, username)
+
+    # Remove from DB
+    if "has been removed" in message:
+        async with SessionLocal() as session:
+            await session.execute(
+                delete(Queue).where(Queue.discord_id == user_id)
+            )
+
+            await session.commit()
+
+    await ctx.send(message)
     
 # ==========================
 # View Queue
@@ -132,5 +169,3 @@ async def on_command_error(ctx, error):
     else:
         print(error)
         
-#run
-bot.run(DISCORD_TOKEN)
