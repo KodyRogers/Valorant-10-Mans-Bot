@@ -1,2 +1,4 @@
 *.env
 /__pycache__/
+/old/
+*/__pycache__/
