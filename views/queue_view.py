@@ -17,22 +17,17 @@ class QueueView(discord.ui.View):
     def build_embed(queue):
 
         embed = discord.Embed(
-            title="🏆 Contenders Queue",
+            title="🏆 Kodhi's 10 Man Queue",
             color=discord.Color.red()
         )
 
         if len(queue) == 0:
-
             players = "No players currently in queue."
-
         else:
-
             players = ""
 
             for index, player in enumerate(queue, start=1):
-                players += (
-                    f"**{index}.** <@{player.discord_id}>\n"
-                )
+                players += f"**{index}.** <@{player.discord_id}>\n"
 
         embed.add_field(
             name="Players",
@@ -82,12 +77,11 @@ class QueueView(discord.ui.View):
         button: discord.ui.Button
     ):
 
-        success, message = await QueueManager.join_queue(
+        success, message, queue_size = await QueueManager.join_queue(
             str(interaction.user.id)
         )
 
         if not success:
-
             await interaction.response.send_message(
                 message,
                 ephemeral=True
@@ -106,15 +100,14 @@ class QueueView(discord.ui.View):
             ephemeral=True
         )
 
-        if len(queue) >= 10:
+        if queue_size >= 10:
 
             players = await QueueManager.pop_first_ten()
 
-            await DraftManager.start_draft(
-                interaction.client,
-                interaction.channel,
-                players
-            )
+            #await MatchManager.create_match (
+            #    interaction = interaction,
+            #    players = players
+            #)
 
     # ===================================
     # LEAVE
@@ -131,12 +124,11 @@ class QueueView(discord.ui.View):
         button: discord.ui.Button
     ):
 
-        success, message = await QueueManager.leave_queue(
+        success, message, queue_size = await QueueManager.leave_queue(
             str(interaction.user.id)
         )
 
         if not success:
-
             await interaction.response.send_message(
                 message,
                 ephemeral=True

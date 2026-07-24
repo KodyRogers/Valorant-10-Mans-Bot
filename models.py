@@ -1,108 +1,272 @@
+from datetime import datetime
+
 from sqlalchemy import (
+    Boolean,
     Column,
-    String,
-    Integer,
     DateTime,
     ForeignKey,
-    Boolean
+    Integer,
+    String
 )
 from sqlalchemy.orm import relationship
-from datetime import datetime
 
 from database import Base
 
 
-# =========================
-# Player Table
-# =========================
+# ===================================
+# PLAYER
+# ===================================
 class Player(Base):
     __tablename__ = "players"
 
-    # Discord User ID
-    discord_id = Column(String, primary_key=True)
+    # Discord Account
+    discord_id = Column(
+        String,
+        primary_key=True
+    )
 
     # Riot Information
-    riot_name = Column(String, nullable=False)
-    riot_tag = Column(String, nullable=False)
+    riot_name = Column(
+        String,
+        nullable=False
+    )
 
-    # Ranking / Stats
-    elo = Column(Integer, default=1000)
-    wins = Column(Integer, default=0)
-    losses = Column(Integer, default=0)
+    riot_tag = Column(
+        String,
+        nullable=False
+    )
 
-    # Queue status
-    is_queued = Column(Boolean, default=False)
+    # Permanent Riot Identifier
+    # Never changes even if Riot ID changes.
+    puuid = Column(
+        String,
+        unique=True,
+        nullable=False
+    )
 
-    # Timestamp
-    created_at = Column(DateTime, default=datetime.utcnow)
+    # Player Statistics
+    elo = Column(
+        Integer,
+        default=1000
+    )
+
+    wins = Column(
+        Integer,
+        default=0
+    )
+
+    losses = Column(
+        Integer,
+        default=0
+    )
+
+    # Queue State
+    is_queued = Column(
+        Boolean,
+        default=False
+    )
+
+    # Current active match
+    current_match = Column(
+        Integer,
+        ForeignKey("matches.match_id"),
+        nullable=True
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
 
     # Relationships
-    match_entries = relationship("MatchPlayer", back_populates="player")
+    match_entries = relationship(
+        "MatchPlayer",
+        back_populates="player"
+    )
 
 
-# =========================
-# Match Table
-# =========================
+# ===================================
+# MATCH
+# ===================================
 class Match(Base):
     __tablename__ = "matches"
 
-    # Unique match ID
-    match_id = Column(Integer, primary_key=True, autoincrement=True)
+    # Internal Database ID
+    match_id = Column(
+        Integer,
+        primary_key=True,
+        autoincrement=True
+    )
 
-    # Match metadata
-    created_at = Column(DateTime, default=datetime.utcnow)
+    # Public Match Code
+    match_code = Column(
+        String,
+        unique=True,
+        nullable=False
+    )
 
-    # Team results
-    winning_team = Column(Integer, nullable=True)  # 1 or 2
+    # Waiting
+    # Drafting
+    # Live
+    # Completed
+    # Cancelled
+    status = Column(
+        String,
+        default="Waiting"
+    )
 
-    # Optional map info
-    map_name = Column(String, nullable=True)
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
 
-    # Relationships
-    players = relationship("MatchPlayer", back_populates="match")
+    completed_at = Column(
+        DateTime,
+        nullable=True
+    )
+
+    # Captains
+    captain_1 = Column(
+        String,
+        ForeignKey("players.discord_id"),
+        nullable=True
+    )
+
+    captain_2 = Column(
+        String,
+        ForeignKey("players.discord_id"),
+        nullable=True
+    )
+
+    # Team Names
+    team_1_name = Column(
+        String,
+        default="Team 1"
+    )
+
+    team_2_name = Column(
+        String,
+        default="Team 2"
+    )
+
+    # Match Information
+    selected_map = Column(
+        String,
+        nullable=True
+    )
+
+    winning_team = Column(
+        Integer,
+        nullable=True
+    )
+
+    # Website URL
+    draft_url = Column(
+        String,
+        nullable=True
+    )
+
+    players = relationship(
+        "MatchPlayer",
+        back_populates="match"
+    )
 
 
-# =========================
-# Match Player Stats Table
-# =========================
+# ===================================
+# MATCH PLAYER
+# ===================================
 class MatchPlayer(Base):
     __tablename__ = "match_players"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(
+        Integer,
+        primary_key=True,
+        autoincrement=True
+    )
 
-    # Foreign keys
-    match_id = Column(Integer, ForeignKey("matches.match_id"))
-    discord_id = Column(String, ForeignKey("players.discord_id"))
+    match_id = Column(
+        Integer,
+        ForeignKey("matches.match_id")
+    )
+
+    discord_id = Column(
+        String,
+        ForeignKey("players.discord_id")
+    )
 
     # Team Assignment
-    team = Column(Integer, nullable=False)  # Team 1 or Team 2
+    team = Column(
+        Integer,
+        nullable=True
+    )
 
-    # Performance Stats
-    kills = Column(Integer, default=0)
-    deaths = Column(Integer, default=0)
-    assists = Column(Integer, default=0)
+    # Draft Information
+    is_captain = Column(
+        Boolean,
+        default=False
+    )
 
-    # ELO change after match
-    elo_change = Column(Integer, default=0)
+    pick_order = Column(
+        Integer,
+        nullable=True
+    )
 
-    # Relationships
-    match = relationship("Match", back_populates="players")
-    player = relationship("Player", back_populates="match_entries")
+    # Match Statistics
+    kills = Column(
+        Integer,
+        default=0
+    )
+
+    deaths = Column(
+        Integer,
+        default=0
+    )
+
+    assists = Column(
+        Integer,
+        default=0
+    )
+
+    elo_change = Column(
+        Integer,
+        default=0
+    )
+
+    match = relationship(
+        "Match",
+        back_populates="players"
+    )
+
+    player = relationship(
+        "Player",
+        back_populates="match_entries"
+    )
 
 
-# =========================
-# Queue Table
-# =========================
+# ===================================
+# QUEUE
+# ===================================
 class Queue(Base):
     __tablename__ = "queue"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(
+        Integer,
+        primary_key=True,
+        autoincrement=True
+    )
 
-    # Discord User
-    discord_id = Column(String, ForeignKey("players.discord_id"))
+    discord_id = Column(
+        String,
+        ForeignKey("players.discord_id"),
+        nullable=False
+    )
 
-    # Queue join time
-    joined_at = Column(DateTime, default=datetime.utcnow)
+    joined_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
 
-    # Optional role (captain, fill, etc.)
-    role = Column(String, nullable=True)
+    role = Column(
+        String,
+        nullable=True
+    )

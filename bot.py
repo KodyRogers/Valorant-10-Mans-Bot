@@ -21,6 +21,9 @@ async def on_ready():
     await QueueManager.clear_queue()
     print("Queue cleared.")
 
+    await bot.load_extension("commands.player_commands")
+    print("Player commands loaded.")
+
     await bot.load_extension("commands.admin_commands")
     print("Admin commands loaded.")
 

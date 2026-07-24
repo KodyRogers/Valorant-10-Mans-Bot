@@ -1,7 +1,7 @@
 import asyncio
 import uvicorn
 
-from bot import bot
+from old.bot import bot
 from config import DISCORD_TOKEN
 from web import app
 

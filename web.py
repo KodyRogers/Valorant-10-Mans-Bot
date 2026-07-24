@@ -5,7 +5,7 @@ from sqlalchemy import select
 from database import SessionLocal
 from models import Player
 
-from bot import bot
+from old.bot import bot
 
 app = FastAPI()
 
@@ -15,7 +15,7 @@ async def root():
 
 @app.get("/queue")
 async def queue():
-    from bot import queue_manager
+    from old.bot import queue_manager
     
     return {
         "queue_size": len(queue_manager.queue),

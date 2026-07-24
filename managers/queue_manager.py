@@ -18,10 +18,10 @@ class QueueManager:
             player = result.scalar_one_or_none()
 
             if player is None:
-                return False, "Player is not registered."
+                return False, "Player is not registered.", None
 
             if player.is_queued:
-                return False, "You are already in queue."
+                return False, "You are already in queue.", None
 
             # Update player
             player.is_queued = True
@@ -35,7 +35,11 @@ class QueueManager:
 
             size = await QueueManager.queue_size()
 
-            return True, size
+            return (
+                True,
+                f"✅ You joined the queue! ({size}/{QUEUE_SIZE})",
+                size
+            )
 
     @staticmethod
     async def leave_queue(discord_id: str):
@@ -48,10 +52,10 @@ class QueueManager:
             player = result.scalar_one_or_none()
 
             if player is None:
-                return False, "Player not found."
+                return False, "Player not found.", None
 
             if not player.is_queued:
-                return False, "You are not in queue."
+                return False, "You are not in queue.", None
 
             player.is_queued = False
 
@@ -65,7 +69,11 @@ class QueueManager:
 
             size = await QueueManager.queue_size()
 
-            return True, size
+            return (
+                True,
+                f"❌ You left the queue. ({size}/{QUEUE_SIZE})",
+                size
+            )
 
     @staticmethod
     async def queue_size():
