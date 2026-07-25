@@ -89,3 +89,39 @@ class PlayerManager:
         if account is None:
             return False
         return True
+
+    # ==============================
+    # Get riot account info by Discord ID
+    # ==============================
+    @staticmethod
+    async def get_riot_account_info(discord_id):
+        player = await PlayerManager.get_player(discord_id)
+        if not player:
+            return None
+        return {
+            "riot_name": player.riot_name,
+            "riot_tag": player.riot_tag,
+            "puuid": player.puuid
+        }
+
+    # ==============================
+    # Get players mmr by Discord ID
+    # ==============================
+    @staticmethod
+    async def get_player_mmr(discord_id):
+        player = await PlayerManager.get_player(discord_id)
+        if not player:
+            return None
+        return player.elo
+
+    # ==============================
+    # Get player by Discord ID
+    # ==============================
+    @staticmethod
+    async def get_player(discord_id):
+        async with SessionLocal() as session:
+            result = await session.execute(
+                select(Player).where(Player.discord_id == discord_id)
+            )
+            player = result.scalar_one_or_none()
+            return player

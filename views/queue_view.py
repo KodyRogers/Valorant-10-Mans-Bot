@@ -1,7 +1,7 @@
 import discord
 
 from managers.queue_manager import QueueManager
-
+from managers.player_manager import PlayerManager
 
 class QueueView(discord.ui.View):
 
@@ -13,7 +13,7 @@ class QueueView(discord.ui.View):
     # ===================================
 
     @staticmethod
-    def build_embed(queue):
+    async def build_embed(queue):
 
         embed = discord.Embed(
             title="🏆 Kodhi's 10 Man Queue",
@@ -26,7 +26,10 @@ class QueueView(discord.ui.View):
             players = ""
 
             for index, player in enumerate(queue, start=1):
-                players += f"**{index}.** <@{player.discord_id}>\n"
+                riot_info = await PlayerManager.get_riot_account_info(player.discord_id)
+                mrr = await PlayerManager.get_player_mmr(player.discord_id)
+                riot_id = f"{riot_info['riot_name']}#{riot_info['riot_tag']}" if riot_info else "Unknown"
+                players += f"**{index}.** <@{player.discord_id}> ({riot_id}) - MMR: {mrr}\n"
 
         embed.add_field(
             name="Players",
@@ -90,7 +93,7 @@ class QueueView(discord.ui.View):
         queue = await QueueManager.get_queue()
 
         await interaction.message.edit(
-            embed=self.build_embed(queue),
+            embed=await self.build_embed(queue),
             view=self
         )
 
@@ -100,8 +103,8 @@ class QueueView(discord.ui.View):
         )
 
         if queue_size >= 10:
-
-            players = await QueueManager.pop_first_ten()
+            pass
+            #players = await QueueManager.pop_first_ten()
 
             #await MatchManager.create_match (
             #    interaction = interaction,
@@ -137,7 +140,7 @@ class QueueView(discord.ui.View):
         queue = await QueueManager.get_queue()
 
         await interaction.message.edit(
-            embed=self.build_embed(queue),
+            embed=await self.build_embed(queue),
             view=self
         )
 

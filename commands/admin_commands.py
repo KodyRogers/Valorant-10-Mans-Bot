@@ -2,6 +2,7 @@ from discord.ext import commands
 
 from managers.queue_manager import QueueManager
 from views.queue_view import QueueView
+from mock.mock_players import MockPlayers
 
 
 class Admin(commands.Cog):
@@ -24,7 +25,7 @@ class Admin(commands.Cog):
         queue = await QueueManager.get_queue()
 
         await ctx.send(
-            embed=QueueView.build_embed(queue),
+            embed=await QueueView.build_embed(queue),
             view=QueueView()
         )
 
@@ -75,6 +76,20 @@ class Admin(commands.Cog):
 
         await self.bot.close()
 
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def mock_queue(self, ctx, amount: int = 10):
+        """
+        Mocks a queue with the specified number of players.
+        """
+
+        await QueueManager.clear_queue()
+
+        mock_players = MockPlayers()
+        await mock_players.mock_players(count=amount)
+
+        await ctx.send("Mock queue created.")
 
 async def setup(bot):
     await bot.add_cog(Admin(bot))

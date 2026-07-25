@@ -11,6 +11,9 @@ class QueueManager:
     async def join_queue(discord_id: str):
         async with SessionLocal() as session:
 
+            if await QueueManager.is_full():
+                return False, "Queue is full.", None
+            
             # Player exists?
             result = await session.execute(
                 select(Player).where(Player.discord_id == discord_id)
