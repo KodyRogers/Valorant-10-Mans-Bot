@@ -1,7 +1,6 @@
 from discord.ext import commands
 
 from managers.queue_manager import QueueManager
-from managers.draft_manager import DraftManager
 from views.queue_view import QueueView
 
 
@@ -45,12 +44,6 @@ class Admin(commands.Cog):
             return
 
         players = await QueueManager.pop_first_ten()
-
-        await DraftManager.start_draft(
-            self.bot,
-            ctx.channel,
-            players
-        )
 
     # ===================================
     # RESET QUEUE

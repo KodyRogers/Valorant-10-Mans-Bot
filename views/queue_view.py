@@ -1,7 +1,6 @@
 import discord
 
 from managers.queue_manager import QueueManager
-from managers.draft_manager import DraftManager
 
 
 class QueueView(discord.ui.View):
