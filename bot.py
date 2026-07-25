@@ -28,4 +28,4 @@ async def on_ready():
     print("Admin commands loaded.")
 
 
-bot.run(DISCORD_TOKEN)
+#bot.run(DISCORD_TOKEN)
