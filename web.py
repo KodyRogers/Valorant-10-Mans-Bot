@@ -5,22 +5,11 @@ from sqlalchemy import select
 from database import SessionLocal
 from models import Player
 
-from old.bot import bot
-
 app = FastAPI()
 
 @app.get("/")
 async def root():
     return {"message": "Valorant 10-Mans Bot is running!"}
-
-@app.get("/queue")
-async def queue():
-    from old.bot import queue_manager
-    
-    return {
-        "queue_size": len(queue_manager.queue),
-        "players": queue_manager.queue
-    }
 
 @app.get("/leaderboard")
 async def leaderboard():
