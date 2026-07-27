@@ -24,8 +24,8 @@ async def start_api():
 
 async def main():
     await asyncio.gather(
-        start_bot(),
-        start_api()
+        start_api(),
+        start_bot()
     )
 
 

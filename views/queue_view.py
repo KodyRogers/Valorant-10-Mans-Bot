@@ -2,6 +2,7 @@ import discord
 
 from managers.queue_manager import QueueManager
 from managers.player_manager import PlayerManager
+from managers.match_manger import MatchManager
 
 class QueueView(discord.ui.View):
 
@@ -103,13 +104,13 @@ class QueueView(discord.ui.View):
         )
 
         if queue_size >= 10:
-            pass
-            #players = await QueueManager.pop_first_ten()
+            
+            players = await QueueManager.pop_first_ten()
 
-            #await MatchManager.create_match (
-            #    interaction = interaction,
-            #    players = players
-            #)
+            _, match_website_url = await MatchManager.create_match(players_queue=players)
+            await interaction.channel.send(
+                f"Match created! Check it out here: {match_website_url}"
+            )
 
     # ===================================
     # LEAVE

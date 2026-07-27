@@ -9,3 +9,5 @@ HENRIK_API_KEY = os.getenv("HENRIKDEV_API_KEY")
 DISCORD_CLIENT_ID = os.getenv("DISCORD_CLIENT_ID")
 DISCORD_CLIENT_SECRET = os.getenv("DISCORD_CLIENT_SECRET")
 SESSION_SECRET = os.getenv("SESSION_SECRET")
+
+WEBSITE_URL = "http://localhost:8000" # Change to domain later

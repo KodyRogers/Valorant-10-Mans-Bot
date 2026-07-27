@@ -1,8 +1,8 @@
 import discord
 from discord.ext import commands
 
+from config import DISCORD_TOKEN
 from database import init_db
-from config import DISCORD_TOKEN, HENRIK_API_KEY
 from managers.queue_manager import QueueManager
 
 intents = discord.Intents.default()
@@ -26,6 +26,5 @@ async def on_ready():
 
     await bot.load_extension("commands.admin_commands")
     print("Admin commands loaded.")
-
 
 #bot.run(DISCORD_TOKEN)

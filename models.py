@@ -105,7 +105,6 @@ class Match(Base):
         nullable=False
     )
 
-    # Waiting
     # Drafting
     # Live
     # Completed
