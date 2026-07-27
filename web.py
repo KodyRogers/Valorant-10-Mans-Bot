@@ -89,7 +89,9 @@ async def match_info(match_code: str, request: Request):
             })
 
         #check if users is logged in and if they are part of the match
-        if "discord_id" in request.session:
+        login_discord_id = str(request.session["discord_id"])
+        if login_discord_id in discord_ids:
+            
             return {
                 "match_code": match.match_code,
                 "status": match.status,
@@ -99,12 +101,14 @@ async def match_info(match_code: str, request: Request):
                 "winning_team": match.winning_team,
                 "created_at": match.created_at.isoformat(),
                 "players": players_info,
+                "discord_id": request.session["discord_id"],
             }
         else:
             return {
                 "match_code": match.match_code,
                 "status": match.status,
                 "selected_map": match.selected_map,
-                "created_at": match.created_at.isoformat(),
+                "winning_team": match.winning_team,
                 "players": players_info,
             }
+

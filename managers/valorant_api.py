@@ -101,15 +101,14 @@ class HenrikAPI:
 
     async def get_matches(
         self,
-        region,
         name,
         tag,
         size=5
     ):
 
         url = (
-            f"{self.base_url}/v3/matches/"
-            f"{region}/{name}/{tag}?size={size}"
+            f"{self.base_url}/v4/matches/"
+            f"na/pc/{name}/{tag}?size={size}"
         )
 
         async with aiohttp.ClientSession() as session:
