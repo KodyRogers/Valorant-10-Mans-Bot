@@ -8,6 +8,7 @@ from config import SESSION_SECRET
 
 from database import SessionLocal
 from managers.match_manger import MatchManager
+from managers.player_manager import PlayerManager
 from managers.queue_manager import QueueManager
 from models import Player
 from routes.login import router
@@ -75,23 +76,35 @@ async def match_info(match_code: str, request: Request):
         match_players = await MatchManager.get_match_players(session, match.match_id)
 
         players_info = []
+        discord_ids = []
 
         for player in match_players:
-            riot_info = await QueueManager.get_riot_account_info(session, player.discord_id)
+            riot_id = await PlayerManager.get_riot_account_info(player.discord_id)
+            discord_ids.append(player.discord_id)
             players_info.append({
                 "discord_id": player.discord_id,
-                "riot_id": f"{riot_info['riot_name']}#{riot_info['riot_tag']}" if riot_info else "Unknown",
+                "riot_id": f"{riot_id['riot_name']}#{riot_id['riot_tag']}",
                 "team": player.team,
                 "is_captain": player.is_captain
             })
 
-        return {
-            "match_code": match.match_code,
-            "status": match.status,
-            "captain_1": match.captain_1,
-            "captain_2": match.captain_2,
-            "selected_map": match.selected_map,
-            "winning_team": match.winning_team,
-            "created_at": match.created_at.isoformat(),
-            "players": players_info
-        }
+        #check if users is logged in and if they are part of the match
+        if "discord_id" in request.session:
+            return {
+                "match_code": match.match_code,
+                "status": match.status,
+                "captain_1": match.captain_1,
+                "captain_2": match.captain_2,
+                "selected_map": match.selected_map,
+                "winning_team": match.winning_team,
+                "created_at": match.created_at.isoformat(),
+                "players": players_info,
+            }
+        else:
+            return {
+                "match_code": match.match_code,
+                "status": match.status,
+                "selected_map": match.selected_map,
+                "created_at": match.created_at.isoformat(),
+                "players": players_info,
+            }
