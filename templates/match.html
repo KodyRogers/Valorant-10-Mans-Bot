@@ -1,98 +1,249 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+
+    <meta charset="UTF-8">
+
     <title>Match {{ match.match_code }}</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', path='css/match.css') }}">
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', path='css/match.css') }}"
+    >
+
 </head>
 
 <body>
 
 <div class="container">
 
-    <div class="header">
+    <!-- ================= HEADER ================= -->
 
-        <h1>Match {{ match.match_code }}</h1>
-
-        <div class="status">
-            {{ match.status }}
-        </div>
-
-    </div>
-
-    <div class="info">
+    <header>
 
         <div>
-            <strong>Map</strong><br>
-            {{ match.selected_map or "TBD" }}
+
+            <h1>Match {{ match.match_code }}</h1>
+
+            <p>Captain Draft</p>
+
         </div>
 
-        <div>
-            <strong>Winner</strong><br>
-            {{ match.winning_team or "-" }}
+        <div class="current-pick">
+
+            <span>Current Pick</span>
+
+            <div id="draft-timer">
+
+                {{ pick_time }}
+
+            </div>
+
+            <h2>
+
+                {{ current_captain }}
+
+            </h2>
+
+            {% if is_current_captain %}
+
+                <p class="your-turn">
+
+                    ✔ Your Turn
+
+                </p>
+
+            {% else %}
+
+                <p class="waiting-turn">
+
+                    Waiting...
+
+                </p>
+
+            {% endif %}
+
         </div>
 
-    </div>
+    </header>
 
-    <div class="teams">
 
-        <div class="team">
+    <!-- ================= BOARD ================= -->
 
-            <h2>Team A</h2>
+    <main class="board">
 
-            {% for player in players %}
-                {% if player.team == 1 %}
 
-                <div class="player">
+        <!-- ================= BLUE TEAM ================= -->
 
-                    <span>{{ player.riot_id }}</span>
+        <section class="team-column">
 
-                    {% if player.is_captain %}
-                        ⭐ Captain
-                    {% endif %}
+            <div class="team-header">
+
+                <div class="team-dot blue"></div>
+
+                <h2>Blue Team</h2>
+
+            </div>
+
+            {% for player in team1 %}
+
+            <div class="player-card">
+
+                {% if player.is_captain %}
+                    ⭐
+                {% endif %}
+
+                <div class="player-name">
+
+                    {{ player.riot_name }}#{{ player.riot_tag }}
 
                 </div>
 
-                {% endif %}
-            {% endfor %}
+                <div class="player-rank">
 
-        </div>
-
-        <div class="team">
-
-            <h2>Team B</h2>
-
-            {% for player in players %}
-                {% if player.team == 2 %}
-
-                <div class="player">
-
-                    <span>{{ player.riot_id }}</span>
-
-                    {% if player.is_captain %}
-                        ⭐ Captain
-                    {% endif %}
+                    {{ player.rank }}
 
                 </div>
 
-                {% endif %}
+            </div>
+
             {% endfor %}
 
-        </div>
+            {% for i in range(5 - team1|length) %}
 
-    </div>
+            <div class="player-card empty">
 
-    {% if authorized %}
-    <div class="login">
+                Empty Slot
 
-        Logged in as Discord ID {{ logged_in }}
+            </div>
 
-    </div>
-    {% endif %}
+            {% endfor %}
+
+        </section>
+
+
+        <!-- ================= DRAFT POOL ================= -->
+
+        <section class="draft-column {% if not is_current_captain %}disabled{% endif %}">
+
+            <h2>Draft Pool</h2>
+
+            <div class="draft-grid">
+
+                {% for player in available_players %}
+
+                <button
+                    class="player-card selectable"
+                    data-player="{{ player.discord_id }}"
+                >
+
+                    <div class="player-name">
+
+                        {{ player.riot_name }}#{{ player.riot_tag }}
+
+                    </div>
+
+                    <div class="player-rank">
+
+                        {{ player.rank }}
+
+                    </div>
+
+                </button>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= RED TEAM ================= -->
+
+        <section class="team-column">
+
+            <div class="team-header">
+
+                <div class="team-dot red"></div>
+
+                <h2>Red Team</h2>
+
+            </div>
+
+            {% for player in team2 %}
+
+            <div class="player-card">
+
+                {% if player.is_captain %}
+                    ⭐
+                {% endif %}
+
+                <div class="player-name">
+
+                    {{ player.riot_name }}#{{ player.riot_tag }}
+
+                </div>
+
+                <div class="player-rank">
+
+                    {{ player.rank }}
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+            {% for i in range(5 - team2|length) %}
+
+            <div class="player-card empty">
+
+                Empty Slot
+
+            </div>
+
+            {% endfor %}
+
+        </section>
+
+    </main>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer>
+
+        <strong>Draft Order</strong>
+
+        <span>
+
+            Blue →
+            Red →
+            Red →
+            Blue →
+            Blue →
+            Red →
+            Red →
+            Blue
+
+        </span>
+
+    </footer>
 
 </div>
 
+
+<script>
+
+    const MATCH_CODE = "{{ match.match_code }}";
+
+    const CAN_PICK = {{ "true" if is_current_captain else "false" }};
+
+</script>
+
+<script src="{{ url_for('static', path='js/match.js') }}"></script>
+
 </body>
+
 </html>

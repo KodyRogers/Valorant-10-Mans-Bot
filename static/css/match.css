@@ -1,61 +1,355 @@
-body{
-    margin:0;
-    background:#111827;
-    color:white;
-    font-family:Arial,sans-serif;
+/* ========================= */
+/* Global */
+/* ========================= */
+
+* {
+
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+
 }
 
-.container{
-    max-width:1100px;
-    margin:auto;
-    padding:40px;
+body {
+
+    background: #111827;
+    color: white;
+    font-family: "Segoe UI", sans-serif;
+
 }
 
-.header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:30px;
+.container {
+
+    width: 95%;
+    max-width: 1700px;
+
+    margin: auto;
+
+    padding: 30px;
+
 }
 
-.status{
-    background:#22c55e;
-    padding:8px 18px;
-    border-radius:20px;
+
+/* ========================= */
+/* Header */
+/* ========================= */
+
+header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 40px;
+
 }
 
-.info{
-    display:flex;
-    gap:40px;
-    margin-bottom:40px;
+header h1 {
+
+    font-size: 38px;
+
 }
 
-.teams{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:40px;
+header p {
+
+    color: #9ca3af;
+
 }
 
-.team{
-    background:#1f2937;
-    border-radius:12px;
-    padding:20px;
+.current-pick {
+
+    text-align: right;
+
+    background: #1f2937;
+
+    padding: 18px 24px;
+
+    border-radius: 12px;
+
+    min-width: 250px;
+
 }
 
-.team h2{
-    text-align:center;
+.current-pick span {
+
+    color: #9ca3af;
+
+    font-size: 14px;
+
 }
 
-.player{
-    display:flex;
-    justify-content:space-between;
-    padding:12px;
-    margin:8px 0;
-    background:#374151;
-    border-radius:8px;
+.current-pick h2 {
+
+    margin-top: 6px;
+
 }
 
-.login{
-    margin-top:40px;
-    text-align:center;
+
+/* ========================= */
+/* Turn Status */
+/* ========================= */
+
+.your-turn {
+
+    margin-top: 10px;
+
+    color: #22c55e;
+
+    font-weight: bold;
+
+}
+
+.waiting-turn {
+
+    margin-top: 10px;
+
+    color: #9ca3af;
+
+}
+
+
+/* ========================= */
+/* Draft Board */
+/* ========================= */
+
+.board {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1.3fr 1fr;
+
+    gap: 35px;
+
+}
+
+
+/* ========================= */
+/* Columns */
+/* ========================= */
+
+.team-column,
+.draft-column {
+
+    background: #1f2937;
+
+    border-radius: 15px;
+
+    padding: 25px;
+
+}
+
+
+/* ========================= */
+/* Team Headers */
+/* ========================= */
+
+.team-header {
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 25px;
+
+}
+
+.team-dot {
+
+    width: 18px;
+
+    height: 18px;
+
+    border-radius: 50%;
+
+}
+
+.blue {
+
+    background: #3b82f6;
+
+}
+
+.red {
+
+    background: #ef4444;
+
+}
+
+
+/* ========================= */
+/* Player Cards */
+/* ========================= */
+
+.player-card {
+
+    width: 100%;
+
+    background: #2d3748;
+
+    color: white;
+
+    border: 1px solid #3f4a5a;
+
+    border-radius: 10px;
+
+    padding: 15px;
+
+    margin-bottom: 15px;
+
+}
+
+.player-name {
+
+    font-size: 17px;
+
+    font-weight: bold;
+
+}
+
+.player-rank {
+
+    margin-top: 5px;
+
+    color: #9ca3af;
+
+}
+
+
+/* ========================= */
+/* Empty Slots */
+/* ========================= */
+
+.empty {
+
+    height: 75px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    border-style: dashed;
+
+    color: #6b7280;
+
+}
+
+
+/* ========================= */
+/* Draft Pool */
+/* ========================= */
+
+.draft-column h2 {
+
+    text-align: center;
+
+    margin-bottom: 20px;
+
+}
+
+.draft-grid {
+
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 15px;
+
+}
+
+.selectable {
+
+    cursor: pointer;
+
+    text-align: left;
+
+    transition: .2s;
+
+}
+
+.selectable:hover {
+
+    background: #374151;
+
+    border-color: #ff4655;
+
+    transform: translateY(-2px);
+
+}
+
+
+/* ========================= */
+/* Disabled Draft */
+/* ========================= */
+
+.disabled {
+
+    opacity: .45;
+
+    pointer-events: none;
+
+}
+
+
+/* ========================= */
+/* Footer */
+/* ========================= */
+
+footer {
+
+    margin-top: 35px;
+
+    text-align: center;
+
+    color: #d1d5db;
+
+}
+
+footer span {
+
+    display: block;
+
+    margin-top: 10px;
+
+}
+
+/* ========================= */
+/* Draft Timer */
+/* ========================= */
+
+#draft-timer {
+
+    width: 80px;
+
+    height: 80px;
+
+    margin: 15px auto;
+
+    border-radius: 50%;
+
+    border: 4px solid #ff4655;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    font-size: 32px;
+
+    font-weight: bold;
+
+    color: #ff4655;
+
+    background: #111827;
+
+    user-select: none;
+
 }

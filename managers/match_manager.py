@@ -8,9 +8,11 @@ from sqlalchemy import select, delete
 from config import WEBSITE_URL
 from database import SessionLocal
 from models import Match, MatchPlayer, Player
-from managers.draft_manager import DraftManger
+from managers.draft_manager import DraftManager
 
 class MatchManager:
+    # Could be DRAFT, MAP_BAN, LIVE, COMPLETE
+    status = ""
 
     @staticmethod
     def generate_match_id(length=8):
@@ -28,6 +30,7 @@ class MatchManager:
     @staticmethod
     async def create_match(players_queue):
 
+        from managers.draft_timer import DraftTimer
             
         async with SessionLocal() as session:
 
@@ -38,12 +41,12 @@ class MatchManager:
             while await MatchManager.match_code_exists(session, match_code):
                 match_code = MatchManager.generate_match_id()
 
-            captain_1, captain_2, remaining_players = await DraftManger.get_captains(session, players_queue)
+            captain_1, captain_2, remaining_players = await DraftManager.get_captains(session, players_queue)
 
             # Create a new match instance
             match = Match(
                 match_code=match_code,
-                status = "DRAFTING",
+                status = "DRAFT",
                 captain_1=captain_1.discord_id,
                 captain_2=captain_2.discord_id,
                 selected_map="None",
@@ -65,7 +68,12 @@ class MatchManager:
             await session.commit()
             await session.refresh(match)
 
-            
+            if (
+                match.status == "DRAFTING"
+                and match.match_id not in DraftTimer.timers
+            ):
+                print("Starting draft timer...")
+                await DraftTimer.start(match.match_id)
 
             return match, match_website_url
 
@@ -86,3 +94,28 @@ class MatchManager:
     async def get_match_players(session, match_id: int):
         result = await session.execute(select(MatchPlayer).filter_by(match_id=match_id))
         return result.scalars().all()
+
+    @staticmethod
+    async def get_match_by_id(session, match_id: int):
+        results = await session.execute(select(Match).filter_by(match_id=match_id))
+        return results.scalars().first()
+
+    @staticmethod
+    async def update_match_status(session, match_id, new_status: str):
+
+        results = await session.execute(
+            select(Match).where(Match.match_id == match_id)
+        )
+
+        match = results.scalar_one_or_none()
+
+        if not match:
+            return
+
+        match.status = new_status
+        
+        await session.commit()
+        await session.refresh(match)
+
+        return match
+    

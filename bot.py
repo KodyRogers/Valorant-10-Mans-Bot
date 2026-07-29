@@ -27,4 +27,9 @@ async def on_ready():
     await bot.load_extension("commands.admin_commands")
     print("Admin commands loaded.")
 
+    from managers.draft_timer import DraftTimer
+    await DraftTimer.start(3)
+    print("Starting draft timer...")
+            
+
 #bot.run(DISCORD_TOKEN)
