@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Match {{ match.match_code }}</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', path='css/match.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+
+        <h1>Match {{ match.match_code }}</h1>
+
+        <div class="status">
+            {{ match.status }}
+        </div>
+
+    </div>
+
+    <div class="info">
+
+        <div>
+            <strong>Map</strong><br>
+            {{ match.selected_map or "TBD" }}
+        </div>
+
+        <div>
+            <strong>Winner</strong><br>
+            {{ match.winning_team or "-" }}
+        </div>
+
+    </div>
+
+    <div class="teams">
+
+        <div class="team">
+
+            <h2>Team A</h2>
+
+            {% for player in players %}
+                {% if player.team == 1 %}
+
+                <div class="player">
+
+                    <span>{{ player.riot_id }}</span>
+
+                    {% if player.is_captain %}
+                        ⭐ Captain
+                    {% endif %}
+
+                </div>
+
+                {% endif %}
+            {% endfor %}
+
+        </div>
+
+        <div class="team">
+
+            <h2>Team B</h2>
+
+            {% for player in players %}
+                {% if player.team == 2 %}
+
+                <div class="player">
+
+                    <span>{{ player.riot_id }}</span>
+
+                    {% if player.is_captain %}
+                        ⭐ Captain
+                    {% endif %}
+
+                </div>
+
+                {% endif %}
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+    {% if authorized %}
+    <div class="login">
+
+        Logged in as Discord ID {{ logged_in }}
+
+    </div>
+    {% endif %}
+
+</div>
+
+</body>
+</html>

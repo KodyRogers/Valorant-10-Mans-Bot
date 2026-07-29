@@ -1,0 +1,61 @@
+body{
+    margin:0;
+    background:#111827;
+    color:white;
+    font-family:Arial,sans-serif;
+}
+
+.container{
+    max-width:1100px;
+    margin:auto;
+    padding:40px;
+}
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:30px;
+}
+
+.status{
+    background:#22c55e;
+    padding:8px 18px;
+    border-radius:20px;
+}
+
+.info{
+    display:flex;
+    gap:40px;
+    margin-bottom:40px;
+}
+
+.teams{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:40px;
+}
+
+.team{
+    background:#1f2937;
+    border-radius:12px;
+    padding:20px;
+}
+
+.team h2{
+    text-align:center;
+}
+
+.player{
+    display:flex;
+    justify-content:space-between;
+    padding:12px;
+    margin:8px 0;
+    background:#374151;
+    border-radius:8px;
+}
+
+.login{
+    margin-top:40px;
+    text-align:center;
+}

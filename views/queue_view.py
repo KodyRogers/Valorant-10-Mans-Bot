@@ -2,7 +2,7 @@ import discord
 
 from managers.queue_manager import QueueManager
 from managers.player_manager import PlayerManager
-from managers.match_manger import MatchManager
+from managers.match_manager import MatchManager
 
 class QueueView(discord.ui.View):
 

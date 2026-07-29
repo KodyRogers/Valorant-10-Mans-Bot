@@ -8,6 +8,7 @@ from sqlalchemy import select, delete
 from config import WEBSITE_URL
 from database import SessionLocal
 from models import Match, MatchPlayer, Player
+from managers.draft_manager import DraftManger
 
 class MatchManager:
 
@@ -37,12 +38,14 @@ class MatchManager:
             while await MatchManager.match_code_exists(session, match_code):
                 match_code = MatchManager.generate_match_id()
 
+            captain_1, captain_2, remaining_players = await DraftManger.get_captains(session, players_queue)
+
             # Create a new match instance
             match = Match(
                 match_code=match_code,
                 status = "DRAFTING",
-                captain_1="None",
-                captain_2="None",
+                captain_1=captain_1.discord_id,
+                captain_2=captain_2.discord_id,
                 selected_map="None",
                 winning_team="None",
                 created_at=datetime.now(UTC)
@@ -53,8 +56,11 @@ class MatchManager:
             #give the match.id before commit
             await session.flush()
 
+            session.add(MatchPlayer(match_id=match.match_id, discord_id=captain_1.discord_id, team=1, is_captain=True))
+            session.add(MatchPlayer(match_id=match.match_id, discord_id=captain_2.discord_id, team=2, is_captain=True))
+
             # Add players to the match
-            for player in players_queue:
+            for player in remaining_players:
                 session.add(MatchPlayer(match_id=match.match_id, discord_id=player.discord_id, team="None", is_captain=False))
             await session.commit()
             await session.refresh(match)

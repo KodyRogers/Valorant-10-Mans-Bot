@@ -1,4 +1,6 @@
 from fastapi import FastAPI, Request
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
 from sqlalchemy import select
 
@@ -7,7 +9,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from config import SESSION_SECRET
 
 from database import SessionLocal
-from managers.match_manger import MatchManager
+from managers.match_manager import MatchManager
 from managers.player_manager import PlayerManager
 from managers.queue_manager import QueueManager
 from models import Player
@@ -21,6 +23,9 @@ app.add_middleware(
 )
 
 app.include_router(router)
+templates = Jinja2Templates(directory="templates") 
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 
 @app.get("/")
 async def root(request: Request):
@@ -72,15 +77,22 @@ async def match_info(match_code: str, request: Request):
 
         if not match:
             return {"error": "Match not found."}
-        
-        match_players = await MatchManager.get_match_players(session, match.match_id)
+
+        match_players = await MatchManager.get_match_players(
+            session,
+            match.match_id
+        )
 
         players_info = []
         discord_ids = []
 
         for player in match_players:
-            riot_id = await PlayerManager.get_riot_account_info(player.discord_id)
-            discord_ids.append(player.discord_id)
+            riot_id = await PlayerManager.get_riot_account_info(
+                player.discord_id
+            )
+
+            discord_ids.append(str(player.discord_id))
+
             players_info.append({
                 "discord_id": player.discord_id,
                 "riot_id": f"{riot_id['riot_name']}#{riot_id['riot_tag']}",
@@ -88,27 +100,16 @@ async def match_info(match_code: str, request: Request):
                 "is_captain": player.is_captain
             })
 
-        #check if users is logged in and if they are part of the match
-        login_discord_id = str(request.session["discord_id"])
-        if login_discord_id in discord_ids:
-            
-            return {
-                "match_code": match.match_code,
-                "status": match.status,
-                "captain_1": match.captain_1,
-                "captain_2": match.captain_2,
-                "selected_map": match.selected_map,
-                "winning_team": match.winning_team,
-                "created_at": match.created_at.isoformat(),
+        login_id = str(request.session.get("discord_id", ""))
+
+        return templates.TemplateResponse(
+            request,
+            "match.html",
+            {
+                "match": match,
                 "players": players_info,
-                "discord_id": request.session["discord_id"],
+                "logged_in": login_id,
+                "authorized": login_id in discord_ids
             }
-        else:
-            return {
-                "match_code": match.match_code,
-                "status": match.status,
-                "selected_map": match.selected_map,
-                "winning_team": match.winning_team,
-                "players": players_info,
-            }
+        )
 
