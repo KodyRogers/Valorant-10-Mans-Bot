@@ -11,8 +11,7 @@ from models import Match, MatchPlayer, Player
 from managers.draft_manager import DraftManager
 
 class MatchManager:
-    # Could be DRAFT, MAP_BAN, LIVE, COMPLETE
-    status = ""
+    
 
     @staticmethod
     def generate_match_id(length=8):
@@ -46,7 +45,7 @@ class MatchManager:
             # Create a new match instance
             match = Match(
                 match_code=match_code,
-                status = "DRAFT",
+                status = "DRAFTING",
                 captain_1=captain_1.discord_id,
                 captain_2=captain_2.discord_id,
                 selected_map="None",
@@ -99,23 +98,4 @@ class MatchManager:
     async def get_match_by_id(session, match_id: int):
         results = await session.execute(select(Match).filter_by(match_id=match_id))
         return results.scalars().first()
-
-    @staticmethod
-    async def update_match_status(session, match_id, new_status: str):
-
-        results = await session.execute(
-            select(Match).where(Match.match_id == match_id)
-        )
-
-        match = results.scalar_one_or_none()
-
-        if not match:
-            return
-
-        match.status = new_status
-        
-        await session.commit()
-        await session.refresh(match)
-
-        return match
     

@@ -1,64 +1,23 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     const cards = document.querySelectorAll(".selectable");
+
     const timer = document.getElementById("draft-timer");
 
-    // Number of drafted players currently on the page
-    let drafted = document.querySelectorAll(".player-card").length;
+    let seconds = Number(timer.textContent);
 
-    // ==========================
-    // Poll Server Status
-    // ==========================
+    setInterval(() => {
 
-    async function updateStatus() {
+        if (seconds <= 0)
+            return;
 
-        try {
+        seconds--;
 
-            const response = await fetch(
-                `/match/${MATCH_CODE}/status`,
-                {
-                    cache: "no-store"
-                }
-            );
+        timer.textContent = seconds;
 
-            if (!response.ok)
-                return;
+    }, 1000);
 
-            const state = await response.json();
-
-            // Update timer from server
-            timer.textContent = state.remaining;
-
-            // Reload page if draft changed
-            if (state.drafted !== drafted) {
-
-                console.log("Draft updated. Reloading...");
-
-                location.reload();
-
-                return;
-
-            }
-
-        }
-        catch (err) {
-
-            console.error("Status update failed:", err);
-
-        }
-
-    }
-
-    // Initial update
-    updateStatus();
-
-    // Poll every second
-    setInterval(updateStatus, 1000);
-
-    // ==========================
-    // Disable buttons if not captain
-    // ==========================
-
+    // Disable all buttons if this user isn't the current captain
     if (!CAN_PICK) {
 
         cards.forEach(card => {
@@ -73,14 +32,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
-    // ==========================
-    // Pick Handler
-    // ==========================
-
     cards.forEach(card => {
 
         card.addEventListener("click", async () => {
 
+            // Prevent double-clicks
             cards.forEach(c => c.disabled = true);
 
             const playerId = Number(card.dataset.player);
@@ -108,7 +64,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (!response.ok) {
 
-                    throw new Error(`HTTP ${response.status}`);
+                    throw new Error(
+                        `HTTP ${response.status}`
+                    );
 
                 }
 
@@ -124,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 }
 
-                // Refresh immediately after a successful pick
+                // Refresh to show updated teams
                 location.reload();
 
             }
@@ -143,3 +101,24 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 });
+
+let drafted = document.querySelectorAll(".player-card").length;
+
+setInterval(async () => {
+
+    const response = await fetch(
+        `/match/${MATCH_CODE}/status`
+    );
+
+    const state = await response.json();
+
+    document.getElementById("draft-timer").textContent =
+        state.remaining;
+    
+    if (state.drafted !== drafted) {
+
+        location.reload();
+
+    }
+
+}, 3000);
