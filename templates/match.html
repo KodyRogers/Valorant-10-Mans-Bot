@@ -18,83 +18,146 @@
 
 <div class="container">
 
-    <!-- ================= HEADER ================= -->
+    <!-- ========================================= -->
+    <!-- HEADER -->
+    <!-- ========================================= -->
 
-    <header>
+    <header class="match-header">
 
         <div>
 
-            <h1>Match {{ match.match_code }}</h1>
+            <h1>
 
-            <p>Captain Draft</p>
+                Match {{ match.match_code }}
+
+            </h1>
+
+            <p>
+
+                Valorant 10 Mans
+
+            </p>
 
         </div>
 
-        <div class="current-pick">
+        <div class="match-status {{ match.status.lower() }}">
 
-            <span>Current Pick</span>
-
-            <div id="draft-timer">
-
-                {{ pick_time }}
-
-            </div>
-
-            <h2>
-
-                {{ current_captain }}
-
-            </h2>
-
-            {% if is_current_captain %}
-
-                <p class="your-turn">
-
-                    ✔ Your Turn
-
-                </p>
-
-            {% else %}
-
-                <p class="waiting-turn">
-
-                    Waiting...
-
-                </p>
-
-            {% endif %}
+            {{ match.status.replace("_", " ") }}
 
         </div>
 
     </header>
 
 
-    <!-- ================= BOARD ================= -->
+    <!-- ========================================= -->
+    <!-- PROGRESS -->
+    <!-- ========================================= -->
 
-    <main class="board">
+    <section class="progress-section">
+
+        <h2>
+
+            Match Progress
+
+        </h2>
+
+        <div class="progress-bar">
+
+            <!-- Draft -->
+
+            <div class="progress-step {% if match.status == 'DRAFTING' %}active{% elif match.status in ['MAP_BANS','PLAYING','FINISHED'] %}complete{% endif %}">
+
+                <div class="indicator"></div>
+
+                <span>
+
+                    Captain Draft
+
+                </span>
+
+            </div>
 
 
-        <!-- ================= BLUE TEAM ================= -->
+            <!-- Map Ban -->
 
-        <section class="team-column">
+            <div class="progress-step {% if match.status == 'MAP_BAN' %}active{% elif match.status in ['PLAYING','FINISHED'] %}complete{% endif %}">
 
-            <div class="team-header">
+                <div class="indicator"></div>
 
-                <div class="team-dot blue"></div>
+                <span>
 
-                <h2>Blue Team</h2>
+                    Map Ban
+
+                </span>
+
+            </div>
+
+
+            <!-- Playing -->
+
+            <div class="progress-step {% if match.status == 'PLAYING' %}active{% elif match.status == 'FINISHED' %}complete{% endif %}">
+
+                <div class="indicator"></div>
+
+                <span>
+
+                    Playing
+
+                </span>
+
+            </div>
+
+
+            <!-- Finished -->
+
+            <div class="progress-step {% if match.status == 'FINISHED' %}complete{% endif %}">
+
+                <div class="indicator"></div>
+
+                <span>
+
+                    Finished
+
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ========================================= -->
+    <!-- TEAMS -->
+    <!-- ========================================= -->
+
+    <section class="teams">
+
+        <!-- Blue Team -->
+
+        <div class="team-card">
+
+            <div class="team-title blue">
+
+                <div class="team-dot"></div>
+
+                <h2>
+
+                    Blue Team
+
+                </h2>
 
             </div>
 
             {% for player in team1 %}
 
-            <div class="player-card">
+            <div class="player">
 
-                {% if player.is_captain %}
-                    ⭐
-                {% endif %}
+                <div class="player-left">
 
-                <div class="player-name">
+                    {% if player.is_captain %}
+                        ⭐
+                    {% endif %}
 
                     {{ player.riot_name }}#{{ player.riot_tag }}
 
@@ -112,7 +175,7 @@
 
             {% for i in range(5 - team1|length) %}
 
-            <div class="player-card empty">
+            <div class="player empty">
 
                 Empty Slot
 
@@ -120,66 +183,34 @@
 
             {% endfor %}
 
-        </section>
+        </div>
 
 
-        <!-- ================= DRAFT POOL ================= -->
+        <!-- Red Team -->
 
-        <section class="draft-column {% if not is_current_captain %}disabled{% endif %}">
+        <div class="team-card">
 
-            <h2>Draft Pool</h2>
+            <div class="team-title red">
 
-            <div class="draft-grid">
+                <div class="team-dot"></div>
 
-                {% for player in available_players %}
+                <h2>
 
-                <button
-                    class="player-card selectable"
-                    data-player="{{ player.discord_id }}"
-                >
+                    Red Team
 
-                    <div class="player-name">
-
-                        {{ player.riot_name }}#{{ player.riot_tag }}
-
-                    </div>
-
-                    <div class="player-rank">
-
-                        {{ player.rank }}
-
-                    </div>
-
-                </button>
-
-                {% endfor %}
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= RED TEAM ================= -->
-
-        <section class="team-column">
-
-            <div class="team-header">
-
-                <div class="team-dot red"></div>
-
-                <h2>Red Team</h2>
+                </h2>
 
             </div>
 
             {% for player in team2 %}
 
-            <div class="player-card">
+            <div class="player">
 
-                {% if player.is_captain %}
-                    ⭐
-                {% endif %}
+                <div class="player-left">
 
-                <div class="player-name">
+                    {% if player.is_captain %}
+                        ⭐
+                    {% endif %}
 
                     {{ player.riot_name }}#{{ player.riot_tag }}
 
@@ -197,7 +228,7 @@
 
             {% for i in range(5 - team2|length) %}
 
-            <div class="player-card empty">
+            <div class="player empty">
 
                 Empty Slot
 
@@ -205,44 +236,98 @@
 
             {% endfor %}
 
-        </section>
+        </div>
 
-    </main>
+    </section>
 
 
-    <!-- ================= FOOTER ================= -->
+    <!-- ========================================= -->
+    <!-- MATCH INFO -->
+    <!-- ========================================= -->
 
-    <footer>
+    <section class="match-info">
 
-        <strong>Draft Order</strong>
+        <h2>
 
-        <span>
+            Match Information
 
-            Blue →
-            Red →
-            Red →
-            Blue →
-            Blue →
-            Red →
-            Red →
-            Blue
+        </h2>
 
-        </span>
+        <div class="info-grid">
 
-    </footer>
+            <div class="info-item">
+
+                <span class="label">
+
+                    Match Code
+
+                </span>
+
+                <span class="value">
+
+                    {{ match.match_code }}
+
+                </span>
+
+            </div>
+
+            <div class="info-item">
+
+                <span class="label">
+
+                    Map
+
+                </span>
+
+                <span class="value">
+
+                    {{ match.map or "TBD" }}
+
+                </span>
+
+            </div>
+
+            <div class="info-item">
+
+                <span class="label">
+
+                    Score
+
+                </span>
+
+                <span class="value">
+
+                    {% if match.team1_score is not none and match.team2_score is not none %}
+                        {{ match.team1_score }} - {{ match.team2_score }}
+                    {% else %}
+                        -- : --
+                    {% endif %}
+
+                </span>
+
+            </div>
+
+            <div class="info-item">
+
+                <span class="label">
+
+                    Created
+
+                </span>
+
+                <span class="value">
+
+                    {{ match.created_at }}
+
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
 
 </div>
-
-
-<script>
-
-    const MATCH_CODE = "{{ match.match_code }}";
-
-    const CAN_PICK = {{ "true" if is_current_captain else "false" }};
-
-</script>
-
-<script src="{{ url_for('static', path='js/match.js') }}"></script>
 
 </body>
 
