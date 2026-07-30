@@ -90,4 +90,10 @@ class DraftManager:
 
         return True
     
+    @staticmethod
+    async def get_draft_state(session, match):
 
+        return {
+            "success": True,
+            "status": match.status
+        }

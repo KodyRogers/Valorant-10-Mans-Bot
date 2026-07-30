@@ -95,7 +95,42 @@ class MatchManager:
         return result.scalars().all()
 
     @staticmethod
+    async def get_team_players(session, match_id: int, team: int):
+        result = await session.execute(
+            select(Player).join(
+                MatchPlayer, Player.discord_id == MatchPlayer.discord_id
+            ).where(
+                MatchPlayer.match_id==match_id, 
+                MatchPlayer.team == team
+            )
+        )
+        return result.scalars().all()
+
+    @staticmethod
+    async def get_available_players(session, match_id: int):
+        result = await session.execute(
+            select(Player).join(
+                MatchPlayer, Player.discord_id == MatchPlayer.discord_id
+            ).where(
+                MatchPlayer.match_id==match_id,
+                MatchPlayer.team == "None"
+            )
+        )
+        return result.scalars().all()
+
+    @staticmethod
     async def get_match_by_id(session, match_id: int):
         results = await session.execute(select(Match).filter_by(match_id=match_id))
         return results.scalars().first()
-    
+
+    @staticmethod
+    async def check_in_match(session, match_id: int, discord_id: str):
+        
+        result = await session.execute(
+            select(MatchPlayer).where(
+                MatchPlayer.match_id == match_id,
+                MatchPlayer.discord_id == discord_id
+            )
+        )
+        match_player = result.scalar_one_or_none()
+        return match_player is not None

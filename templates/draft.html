@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Captain Draft - {{ match.match_code }}</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', path='css/draft.css') }}"
+    >
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- ========================================= -->
+    <!-- HEADER -->
+    <!-- ========================================= -->
+
+    <header class="match-header">
+
+        <div>
+
+            <h1>
+
+                Match {{ match.match_code }}
+
+            </h1>
+
+            <p>
+
+                Captain Draft
+
+            </p>
+
+        </div>
+
+        <div class="match-status drafting">
+
+            Drafting
+
+        </div>
+
+    </header>
+
+
+    <!-- ========================================= -->
+    <!-- DRAFT STATUS -->
+    <!-- ========================================= -->
+
+    <section class="draft-status">
+
+        <div class="timer-card">
+
+            <span class="label">
+
+                Draft Timer
+
+            </span>
+
+            <span id="draft-timer">
+
+                30
+
+            </span>
+
+        </div>
+
+        <div class="current-pick-card">
+
+            <span class="label">
+
+                Current Pick
+
+            </span>
+
+            <span id="current-pick">
+
+                Waiting...
+
+            </span>
+
+        </div>
+
+    </section>
+
+
+    <!-- ========================================= -->
+    <!-- DRAFT -->
+    <!-- ========================================= -->
+
+    <section class="teams">
+
+        <!-- Blue Team -->
+
+        <div class="team-card">
+
+            <div class="team-title blue">
+
+                <div class="team-dot"></div>
+
+                <h2>
+
+                    Blue Team
+
+                </h2>
+
+            </div>
+
+            <div id="team1">
+
+                {% for player in team1 %}
+
+                <div class="player">
+
+                    <div class="player-left">
+
+                        {% if player.is_captain %}
+                            ⭐
+                        {% endif %}
+
+                        {{ player.riot_name }}#{{ player.riot_tag }}
+
+                    </div>
+
+                    <div class="player-rank">
+
+                        {{ player.rank }}
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+                {% for i in range(5 - team1|length) %}
+
+                <div class="player empty">
+
+                    Empty Slot
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+
+        <!-- Available Players -->
+
+        <div class="team-card">
+
+            <div class="team-title">
+
+                <h2>
+
+                    Available Players
+
+                </h2>
+
+            </div>
+
+            <div id="available-players">
+
+                {% for player in available_players %}
+
+                <button
+                    class="player draft-player"
+                    data-player="{{ player.discord_id }}"
+                >
+
+                    <div class="player-left">
+
+                        {{ player.riot_name }}#{{ player.riot_tag }}
+
+                    </div>
+
+                    <div class="player-rank">
+
+                        {{ player.rank }}
+
+                    </div>
+
+                </button>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+
+        <!-- Red Team -->
+
+        <div class="team-card">
+
+            <div class="team-title red">
+
+                <div class="team-dot"></div>
+
+                <h2>
+
+                    Red Team
+
+                </h2>
+
+            </div>
+
+            <div id="team2">
+
+                {% for player in team2 %}
+
+                <div class="player">
+
+                    <div class="player-left">
+
+                        {% if player.is_captain %}
+                            ⭐
+                        {% endif %}
+
+                        {{ player.riot_name }}#{{ player.riot_tag }}
+
+                    </div>
+
+                    <div class="player-rank">
+
+                        {{ player.rank }}
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+                {% for i in range(5 - team2|length) %}
+
+                <div class="player empty">
+
+                    Empty Slot
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ========================================= -->
+    <!-- DRAFT ORDER -->
+    <!-- ========================================= -->
+
+    <section class="match-info">
+
+        <h2>
+
+            Draft Order
+
+        </h2>
+
+        <div id="draft-order">
+
+            Blue →
+            Red →
+            Red →
+            Blue →
+            Blue →
+            Red →
+            Red →
+            Blue
+
+        </div>
+
+    </section>
+
+</div>
+
+</body>
+
+</html>
+
+<script>
+    const MATCH_CODE = "{{ match.match_code }}";
+</script>
+
+<script src="/static/js/draft.js"></script>

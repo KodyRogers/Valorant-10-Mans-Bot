@@ -1,0 +1,443 @@
+/* =======================================================
+   GLOBAL
+======================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+
+    --background: #0f172a;
+    --surface: #1e293b;
+    --surface-light: #334155;
+
+    --text: #f8fafc;
+    --muted: #94a3b8;
+
+    --blue: #3b82f6;
+    --red: #ef4444;
+
+    --yellow: #facc15;
+    --green: #22c55e;
+}
+
+body {
+
+    background: var(--background);
+    color: var(--text);
+    font-family: "Segoe UI", sans-serif;
+
+}
+
+.container {
+
+    width: min(1500px, 95%);
+    margin: 40px auto;
+
+}
+
+
+/* =======================================================
+   HEADER
+======================================================= */
+
+.match-header {
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 40px;
+
+}
+
+.match-header h1 {
+
+    font-size: 2.8rem;
+    margin-bottom: 6px;
+
+}
+
+.match-header p {
+
+    color: var(--muted);
+
+}
+
+
+/* =======================================================
+   STATUS
+======================================================= */
+
+.match-status {
+
+    padding: 12px 24px;
+
+    border-radius: 999px;
+
+    background: rgba(250, 204, 21, .18);
+    color: var(--yellow);
+
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+
+}
+
+
+/* =======================================================
+   DRAFT STATUS
+======================================================= */
+
+.draft-status {
+
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 25px;
+
+    margin-bottom: 35px;
+
+}
+
+.timer-card,
+.current-pick-card {
+
+    background: var(--surface);
+
+    border-radius: 14px;
+
+    padding: 24px;
+
+    text-align: center;
+
+    border: 1px solid rgba(255,255,255,.05);
+
+}
+
+.timer-card .label,
+.current-pick-card .label {
+
+    display: block;
+
+    color: var(--muted);
+
+    margin-bottom: 12px;
+
+}
+
+#draft-timer {
+
+    font-size: 3rem;
+    font-weight: bold;
+
+    color: var(--yellow);
+
+}
+
+#current-pick {
+
+    font-size: 1.4rem;
+    font-weight: 600;
+
+}
+
+
+/* =======================================================
+   DRAFT LAYOUT
+======================================================= */
+
+.teams {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1.6fr 1fr;
+
+    gap: 30px;
+
+    margin-bottom: 40px;
+
+}
+
+.team-card {
+
+    background: var(--surface);
+
+    border-radius: 14px;
+
+    overflow: hidden;
+
+    border: 1px solid rgba(255,255,255,.05);
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+.team-title {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 18px 24px;
+
+    border-bottom: 1px solid rgba(255,255,255,.08);
+
+}
+
+.team-title h2 {
+
+    font-size: 1.25rem;
+
+}
+
+.team-title.blue {
+
+    border-left: 6px solid var(--blue);
+
+}
+
+.team-title.red {
+
+    border-left: 6px solid var(--red);
+
+}
+
+.team-dot {
+
+    width: 14px;
+    height: 14px;
+
+    border-radius: 50%;
+
+}
+
+.team-title.blue .team-dot {
+
+    background: var(--blue);
+
+}
+
+.team-title.red .team-dot {
+
+    background: var(--red);
+
+}
+
+
+/* =======================================================
+   PLAYERS
+======================================================= */
+
+.player {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    width: 100%;
+
+    min-height: 64px;
+
+    padding: 16px 20px;
+
+    background: transparent;
+
+    color: white;
+
+    border: none;
+
+    border-bottom: 1px solid rgba(255,255,255,.05);
+
+    text-align: left;
+
+    transition: .2s;
+
+}
+
+.player:last-child {
+
+    border-bottom: none;
+
+}
+
+.player-left {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    font-weight: 500;
+
+}
+
+.player-rank {
+
+    color: var(--muted);
+
+    font-size: .9rem;
+
+}
+
+.player.empty {
+
+    justify-content: center;
+
+    color: var(--muted);
+
+    font-style: italic;
+
+}
+
+
+/* =======================================================
+   AVAILABLE PLAYERS
+======================================================= */
+
+#available-players {
+
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 14px;
+
+    padding: 20px;
+
+}
+
+#available-players .player {
+
+    border: 1px solid rgba(255,255,255,.08);
+
+    border-radius: 10px;
+
+    min-height: 70px;
+
+    cursor: pointer;
+
+}
+
+#available-players .player:hover {
+
+    background: rgba(255,255,255,.05);
+
+    border-color: var(--yellow);
+
+}
+
+
+/* =======================================================
+   DRAFT ORDER
+======================================================= */
+
+.match-info {
+
+    background: var(--surface);
+
+    border-radius: 14px;
+
+    padding: 30px;
+
+    border: 1px solid rgba(255,255,255,.05);
+
+    text-align: center;
+
+}
+
+.match-info h2 {
+
+    margin-bottom: 24px;
+
+}
+
+#draft-order {
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    font-size: 1.2rem;
+
+    font-weight: 600;
+
+    color: white;
+
+}
+
+
+/* =======================================================
+   SCROLLBAR
+======================================================= */
+
+::-webkit-scrollbar {
+
+    width: 10px;
+
+}
+
+::-webkit-scrollbar-thumb {
+
+    background: #334155;
+
+    border-radius: 10px;
+
+}
+
+
+/* =======================================================
+   MOBILE
+======================================================= */
+
+@media (max-width: 1200px) {
+
+    .teams {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+@media (max-width: 700px) {
+
+    .match-header {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 20px;
+
+    }
+
+    .draft-status {
+
+        grid-template-columns: 1fr;
+
+    }
+
+    #available-players {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}

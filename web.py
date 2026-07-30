@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
+from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
@@ -13,6 +14,7 @@ from managers.match_manager import MatchManager
 from managers.player_manager import PlayerManager
 from managers.draft_manager import DraftManager
 from managers.draft_timer import DraftTimer
+from managers.websocket_manager import DraftConnectionManager
 
 from models import Player
 from routes.pick_request import PickRequest
@@ -21,6 +23,7 @@ from routes.login import router
 import time
 
 app = FastAPI()
+draft_connections = DraftConnectionManager()
 
 app.add_middleware(
     SessionMiddleware,
@@ -194,10 +197,7 @@ async def match_info(match_code: str, request: Request, start_timer: bool = Fals
         )
 
 @app.post("/match/{match_code}/pick")
-async def make_pick(
-    match_code: str,
-    request: PickRequest
-):
+async def make_pick(match_code: str,request: PickRequest):
 
     async with SessionLocal() as session:
 
@@ -241,8 +241,7 @@ async def make_pick(
 
         }
 
-@app.get("/match/{match_code}/status")
-async def match_status(match_code: str):
+
 
     async with SessionLocal() as session:
 
@@ -282,3 +281,105 @@ async def match_status(match_code: str):
             "captain": captain_id,
             "remaining": remaining
         }
+
+@app.get("/match/{match_code}/draft")
+async def draft_page(request: Request, match_code: str):
+
+    
+
+    if "discord_id" not in request.session:
+            return RedirectResponse("/login")
+    
+
+    async with SessionLocal() as session:
+
+        match = await MatchManager.getMatch(session, match_code)
+
+        if not match:
+            return RedirectResponse("/")
+    
+        discord_id = request.session['discord_id']
+        if not await MatchManager.check_in_match(session, match.match_id, str(discord_id)):
+            return RedirectResponse(f"/match/{match_code}")
+
+        team1 = await MatchManager.get_team_players(
+            session,
+            match.match_id,
+            team=1
+        )
+
+        team2 = await MatchManager.get_team_players(
+            session,
+            match.match_id,
+            team=2
+        )
+
+        available_players = await MatchManager.get_available_players(
+            session,
+            match.match_id
+        )
+
+        return templates.TemplateResponse(
+            "draft.html",
+            {
+                "request": request,
+                "match": match,
+                "team1": team1,
+                "team2": team2,
+                "available_players": available_players,
+            }
+        )
+
+@app.get("/match/{match_code}/draft/state")
+async def draft_state(match_code: str):
+
+    async with SessionLocal() as session:
+
+        match = await MatchManager.getMatch(session, match_code)
+
+        if not match:
+            return {"success": False}
+
+        return await DraftManager.get_draft_state(
+            session,
+            match
+        )
+
+@app.websocket("/ws/match/{match_code}")
+async def draft_socket(websocket: WebSocket, match_code: str):
+
+    await draft_connections.connect(match_code, websocket)
+
+    #await websocket.send_text("Hello from the server!")
+
+    try:
+        while True:
+            data = await websocket.receive_json()
+            if data["type"] == "test":
+
+                await draft_connections.broadcast(
+                    match_code,
+                    data
+                )
+
+            elif data["type"] == "pick":
+
+                async with SessionLocal() as session:
+
+                    match = await MatchManager.getMatch(session, match_code)
+                    success = await DraftManager.make_pick(session, match, data["player_id"])
+
+                    if success:
+
+                        await draft_connections.broadcast(
+                            match_code,
+                            {
+                                "type": "refresh"
+                            }
+                        )
+                    
+                #print("Player selected:", data["player_id"])
+
+    except WebSocketDisconnect:
+        draft_connections.disconnect(match_code, websocket)
+        print(f"{match_code}: Disconnected")
