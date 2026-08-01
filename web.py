@@ -332,14 +332,14 @@ async def draft_page(request: Request, match_code: str):
 
 @app.get("/match/{match_code}/draft/state")
 async def draft_state(match_code: str):
-
+    
     async with SessionLocal() as session:
 
         match = await MatchManager.getMatch(session, match_code)
-
+        print(f"Draft state requested for match {match_code}")
         if not match:
             return {"success": False}
-
+        print(f"Draft state requested for match {match_code}")
         return await DraftManager.get_draft_state(
             session,
             match

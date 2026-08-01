@@ -4,12 +4,7 @@ const socket = new WebSocket(
 
 socket.onopen = () => {
     console.log("Connected!");
-
-    socket.send(JSON.stringify({
-        type: "pick",
-        player_id: "2"
-    }));
-
+    await loadDraftState();
 };
 
 socket.onmessage = async (event) => {
@@ -34,3 +29,15 @@ async function loadDraftState() {
 
     console.log(data);
 }
+
+const playerButtons = document.querySelectorAll(".draft-player");
+
+playerButtons.forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        console.log(button.dataset.player);
+
+    });
+
+});

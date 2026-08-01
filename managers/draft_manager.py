@@ -92,8 +92,20 @@ class DraftManager:
     
     @staticmethod
     async def get_draft_state(session, match):
-
+        from managers.match_manager import MatchManager
+        available_players = await MatchManager.get_match_players(session, match.match_id)
+        
+        
         return {
             "success": True,
-            "status": match.status
+            "status": match.status,
+            "available_players": [
+                {
+                    "discord_id": player.discord_id,
+                    "team": player.team,
+                    "is_captain": player.is_captain,
+                    "elo": player.elo
+                }
+                for player in available_players
+            ]
         }
