@@ -29,4 +29,6 @@ async def callback(request: Request):
     request.session["discord_id"] = int(user["id"])
     request.session["username"] = user["username"]
 
-    return RedirectResponse("/")
+    next_url = request.session.pop("next_url", "/")
+    print(f"Redirecting to {next_url} after login")
+    return RedirectResponse(next_url)

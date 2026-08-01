@@ -3,10 +3,7 @@ import random
 import time
 
 from database import SessionLocal
-
-from managers.match_manager import MatchManager
-from managers.draft_manager import DraftManager
-
+from managers.websocket_manager import draft_connections
 
 class DraftTimer:
 
@@ -22,7 +19,7 @@ class DraftTimer:
     #
     # Length of each pick
     #
-    PICK_TIME = 3
+    PICK_TIME = 10
 
 
     # ===========================
@@ -86,7 +83,7 @@ class DraftTimer:
 
     @staticmethod
     async def _run(match_id: int):
-
+        from managers.match_manager import MatchManager
         try:
 
             await asyncio.sleep(
@@ -137,7 +134,8 @@ class DraftTimer:
         session,
         match
     ):
-
+        from managers.draft_manager import DraftManager
+        from managers.match_manager import MatchManager
         players = await MatchManager.get_match_players(
             session,
             match.match_id
@@ -164,12 +162,15 @@ class DraftTimer:
         #
         # Timeout ignores captain check
         #
+        current_captain = await DraftManager.get_current_captain(session, match)
 
         success = await DraftManager.make_pick(
 
             session=session,
 
             match=match,
+
+            discord_id= str(current_captain.discord_id),
 
             player_id=player.discord_id,
 
@@ -180,6 +181,13 @@ class DraftTimer:
         #
 
         if success:
+
+            await draft_connections.broadcast(
+                match.match_code,
+                {
+                    "type": "refresh"
+                }
+            )
 
             await DraftTimer.start(
                 match.match_id

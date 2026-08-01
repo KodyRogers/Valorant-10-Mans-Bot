@@ -97,7 +97,7 @@ class MatchManager:
     @staticmethod
     async def get_team_players(session, match_id: int, team: int):
         result = await session.execute(
-            select(Player).join(
+            select(Player, MatchPlayer).join(
                 MatchPlayer, Player.discord_id == MatchPlayer.discord_id
             ).where(
                 MatchPlayer.match_id==match_id, 

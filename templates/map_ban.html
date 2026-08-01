@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Map Ban</title>
+</head>
+
+<body>
+
+<h1>Map Ban</h1>
+
+<h2>Match {{ match.match_code }}</h2>
+
+{% for map in maps %}
+    <button>{{ map }}</button>
+{% endfor %}
+
+</body>
+
+</html>

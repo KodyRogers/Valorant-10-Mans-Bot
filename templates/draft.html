@@ -128,9 +128,9 @@
 
                     </div>
 
-                    <div class="player-rank">
+                    <div class="player-elo">
 
-                        {{ player.rank }}
+                        {{ player.elo }}
 
                     </div>
 
@@ -182,9 +182,9 @@
 
                     </div>
 
-                    <div class="player-rank">
+                    <div class="player-elo">
 
-                        {{ player.rank }}
+                        {{ player.elo }}
 
                     </div>
 
@@ -291,6 +291,7 @@
 
 <script>
     const MATCH_CODE = "{{ match.match_code }}";
+    const DISCORD_ID = "{{ request.session['discord_id'] }}";
 </script>
 
 <script src="/static/js/draft.js"></script>

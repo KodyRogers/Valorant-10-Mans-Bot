@@ -1,8 +1,11 @@
+from re import match
+
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
+from httpcore import request
 from sqlalchemy import select
 
 from starlette.middleware.sessions import SessionMiddleware
@@ -14,7 +17,7 @@ from managers.match_manager import MatchManager
 from managers.player_manager import PlayerManager
 from managers.draft_manager import DraftManager
 from managers.draft_timer import DraftTimer
-from managers.websocket_manager import DraftConnectionManager
+from managers.websocket_manager import draft_connections
 
 from models import Player
 from routes.pick_request import PickRequest
@@ -23,7 +26,7 @@ from routes.login import router
 import time
 
 app = FastAPI()
-draft_connections = DraftConnectionManager()
+
 
 app.add_middleware(
     SessionMiddleware,
@@ -33,7 +36,6 @@ app.add_middleware(
 app.include_router(router)
 templates = Jinja2Templates(directory="templates") 
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
 
 @app.get("/")
 async def root(request: Request):
@@ -91,28 +93,17 @@ async def match_info(match_code: str, request: Request, start_timer: bool = Fals
             session,
             match.match_id
         )
-
-        match_players = await MatchManager.get_match_players(
-            session,
-            match.match_id
-        )
         
         team1 = []
         team2 = []
-        available_players = []
-
-        discord_ids = []
 
         for player in match_players:
 
-            riot = await PlayerManager.get_riot_account_info(
-                player.discord_id
-            )
+            riot = await PlayerManager.get_riot_account_info(player.discord_id)
+            elo = await PlayerManager.get_player_mmr(player.discord_id)
 
             if not riot:
                 continue
-
-            discord_ids.append(str(player.discord_id))
 
             player_data = {
 
@@ -121,7 +112,7 @@ async def match_info(match_code: str, request: Request, start_timer: bool = Fals
                 "riot_name": riot["riot_name"],
                 "riot_tag": riot["riot_tag"],
 
-                "rank": riot.get("rank", "Unknown"),
+                "elo": elo,
 
                 "team": player.team,
 
@@ -130,166 +121,78 @@ async def match_info(match_code: str, request: Request, start_timer: bool = Fals
             }
 
             if player.team == 1:
-
                 team1.append(player_data)
 
             elif player.team == 2:
-
                 team2.append(player_data)
 
-            else:
-
-                available_players.append(player_data)
-
-        #
-        # Determine whose turn it actually is
-        #
-
-        captain = await DraftManager.get_current_captain(
-            session,
-            match
-        )
-
-        current_captain = "Draft Complete"
-        is_current_captain = False
-
-        login_id = str(request.session.get("discord_id", ""))
-
-        if captain:
-
-            riot = await PlayerManager.get_riot_account_info(
-                captain.discord_id
-            )
-
-            current_captain = (
-                f"{riot['riot_name']}#{riot['riot_tag']}"
-            )
-
-            is_current_captain = (
-                login_id == str(captain.discord_id)
-            )
+           
+        if "discord_id" not in request.session:
+            request.session["next_url"] = str(request.url.path)
+            print(f"User not logged in, redirecting to login. Next URL: {request.session['next_url']}")
+            return RedirectResponse("/login")
+        discord_id = str(request.session.get("discord_id", ""))
+        if not await MatchManager.check_in_match(session, match.match_id, str(discord_id)):
+    
+            if match.status == "DRAFTING":
+                return RedirectResponse(f"/match/{match_code}/draft")
+            elif match.status == "MAP_BAN":
+                return RedirectResponse(f"/match/{match_code}/map-ban")
+            elif match.status == "LIVE":
+                return RedirectResponse(f"/match/{match_code}/live")
+        else:
+            print(f"User {discord_id} is not in match {match_code}, redirecting to login")
+            #return RedirectResponse("/login")
 
         return templates.TemplateResponse(
             request,
             "match.html",
             {
-
                 "match": match,
-
                 "team1": team1,
-
                 "team2": team2,
 
-                "available_players": available_players,
-
-                "current_captain": current_captain,
-
-                "logged_in": login_id,
-
-                "authorized": login_id in discord_ids,
-
-                "is_current_captain": is_current_captain,
-
-                # Timer length shown on page
-                "pick_time": DraftTimer.PICK_TIME
-
             }
         )
-
-@app.post("/match/{match_code}/pick")
-async def make_pick(match_code: str,request: PickRequest):
-
-    async with SessionLocal() as session:
-
-        match = await MatchManager.getMatch(
-            session,
-            match_code
-        )
-
-        if not match:
-
-            return {
-
-                "success": False,
-                "error": "Match not found."
-
-            }
-
-        success = await DraftManager.make_pick(
-
-            session,
-
-            match,
-
-            request.player_id
-
-        )
-
-        if not success:
-
-            return {
-
-                "success": False,
-
-                "error": "Unable to draft player."
-
-            }
-
-        return {
-
-            "success": True
-
-        }
-
-
-
-    async with SessionLocal() as session:
-
-        match = await MatchManager.getMatch(
-            session,
-            match_code
-        )
-
-        if not match:
-            return {
-                "success": False
-            }
-
-        players = await MatchManager.get_match_players(
-            session,
-            match.match_id
-        )
-
-        drafted = sum(
-            1
-            for p in players
-            if p.team is not None and not p.is_captain
-        )
-
-        captain = await DraftManager.get_current_captain(
-            session,
-            match
-        )
-
-        captain_id = captain.discord_id if captain else None
-
-        remaining = DraftTimer.get_remaining(match.match_id)
-
-        return {
-            "success": True,
-            "drafted": drafted,
-            "captain": captain_id,
-            "remaining": remaining
-        }
 
 @app.get("/match/{match_code}/draft")
 async def draft_page(request: Request, match_code: str):
 
-    
+    async with SessionLocal() as session:
 
-    if "discord_id" not in request.session:
+        match = await MatchManager.getMatch(session, match_code)
+        if not match:
+            return RedirectResponse("/")   
+
+        # Check if the user is in the match
+        if "discord_id" not in request.session:
+            request.session["next_url"] = str(request.url.path)
+            print(f"User not logged in, redirecting to login. Next URL: {request.session['next_url']}")
             return RedirectResponse("/login")
+
+        # Check if the user is in the match
+        discord_id = str(request.session.get("discord_id", ""))
+        if not await MatchManager.check_in_match(session, match.match_id, str(discord_id)):
     
+            if match.status == "DRAFTING":
+                return RedirectResponse(f"/match/{match_code}/draft")
+            elif match.status == "MAP_BAN":
+                return RedirectResponse(f"/match/{match_code}/map-ban")
+            elif match.status == "LIVE":
+                return RedirectResponse(f"/match/{match_code}/live")
+        else:
+            print(f"User {discord_id} is not in match {match_code}, redirecting to login")
+
+        return templates.TemplateResponse(
+            "draft.html",
+            {
+                "request": request,
+                "match": match
+            }
+        )
+
+@app.get("/match/{match_code}/mapban")
+async def map_ban_page(request: Request, match_code: str):
 
     async with SessionLocal() as session:
 
@@ -297,36 +200,44 @@ async def draft_page(request: Request, match_code: str):
 
         if not match:
             return RedirectResponse("/")
-    
-        discord_id = request.session['discord_id']
-        if not await MatchManager.check_in_match(session, match.match_id, str(discord_id)):
-            return RedirectResponse(f"/match/{match_code}")
 
-        team1 = await MatchManager.get_team_players(
-            session,
-            match.match_id,
-            team=1
-        )
-
-        team2 = await MatchManager.get_team_players(
-            session,
-            match.match_id,
-            team=2
-        )
-
-        available_players = await MatchManager.get_available_players(
-            session,
-            match.match_id
-        )
+        maps = [
+            "Ascent",
+            "Bind",
+            "Corrode",
+            "Fracture",
+            "Haven",
+            "Icebox",
+            "Lotus",
+            "Pearl",
+            "Split",
+            "Sunset"
+        ]
 
         return templates.TemplateResponse(
-            "draft.html",
+            "map_ban.html",
             {
                 "request": request,
                 "match": match,
-                "team1": team1,
-                "team2": team2,
-                "available_players": available_players,
+                "maps": maps
+            }
+        )
+
+@app.get("/match/{match_code}/live")
+async def live_match_page(request: Request, match_code: str):
+
+    async with SessionLocal() as session:
+
+        match = await MatchManager.getMatch(session, match_code)
+
+        if not match:
+            return RedirectResponse("/")
+
+        return templates.TemplateResponse(
+            "live.html",
+            {
+                "request": request,
+                "match": match
             }
         )
 
@@ -367,10 +278,12 @@ async def draft_socket(websocket: WebSocket, match_code: str):
                 async with SessionLocal() as session:
 
                     match = await MatchManager.getMatch(session, match_code)
-                    success = await DraftManager.make_pick(session, match, data["player_id"])
+                    success = await DraftManager.make_pick(session, match, websocket.session["discord_id"], data["player_id"])
 
                     if success:
 
+                        await DraftTimer.start(match.match_id)
+                        
                         await draft_connections.broadcast(
                             match_code,
                             {

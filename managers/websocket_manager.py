@@ -24,3 +24,5 @@ class DraftConnectionManager:
 
         for websocket in self.connections[match_code]:
             await websocket.send_json(data)
+
+draft_connections = DraftConnectionManager()

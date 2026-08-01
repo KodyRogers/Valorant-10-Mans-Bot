@@ -329,11 +329,34 @@ body {
 
 }
 
-#available-players .player:hover {
+/* Only active buttons get hover effects */
+#available-players .draft-player:not(:disabled):hover {
 
     background: rgba(255,255,255,.05);
 
     border-color: var(--yellow);
+
+}
+
+/* Disabled buttons */
+#available-players .draft-player:disabled {
+
+    opacity: 0.45;
+
+    filter: grayscale(100%);
+
+    cursor: not-allowed;
+
+    border-color: rgba(255,255,255,.08);
+
+}
+
+/* Prevent hover styling on disabled buttons */
+#available-players .draft-player:disabled:hover {
+
+    background: transparent;
+
+    border-color: rgba(255,255,255,.08);
 
 }
 

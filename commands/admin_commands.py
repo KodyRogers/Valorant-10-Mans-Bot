@@ -1,5 +1,6 @@
 from discord.ext import commands
 
+from managers.draft_timer import DraftTimer
 from managers.queue_manager import QueueManager
 from views.queue_view import QueueView
 from mock.mock_players import MockPlayers
@@ -90,6 +91,25 @@ class Admin(commands.Cog):
         await mock_players.mock_players(count=amount)
 
         await ctx.send("Mock queue created.")
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def starttimer(self, ctx):
+
+        
+        from managers.draft_timer import DraftTimer
+        await DraftTimer.start(3)
+
+        await ctx.send(f"Started draft timer for {3}.")
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def canceltimer(self, ctx):
+
+        from managers.draft_timer import DraftTimer
+        await DraftTimer.cancel(3)
+
+        await ctx.send(f"Cancelled draft timer for {3}.")
 
 async def setup(bot):
     await bot.add_cog(Admin(bot))
