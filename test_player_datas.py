@@ -47,7 +47,7 @@ async def update_match_players():
     print(f"Reset draft for match {match_id}.")
 
 async def main():
-    await rico_test()
+    await update_match_players()
     
 
 if __name__ == "__main__":

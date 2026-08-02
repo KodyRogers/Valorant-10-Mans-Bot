@@ -133,7 +133,7 @@ async def match_info(match_code: str, request: Request, start_timer: bool = Fals
             print(f"User not logged in, redirecting to login. Next URL: {request.session['next_url']}")
             return RedirectResponse("/login")
         discord_id = str(request.session.get("discord_id", ""))
-        if not await MatchManager.check_in_match(session, match.match_id, str(discord_id)):
+        if await MatchManager.check_in_match(session, match.match_id, str(discord_id)):
     
             if match.status == "DRAFTING":
                 return RedirectResponse(f"/match/{match_code}/draft")
@@ -277,10 +277,10 @@ async def map_ban_state(match_code: str):
     async with SessionLocal() as session:
 
         match = await MatchManager.getMatch(session, match_code)
-        print(f"Map ban state requested for match {match_code}")
+        
         if not match:
-            return {"success": False}
-        print(f"Map ban state requested for match {match_code}")
+            return {"success": False} 
+        
         return await DraftManager.get_map_ban_state(
             session,
             match
