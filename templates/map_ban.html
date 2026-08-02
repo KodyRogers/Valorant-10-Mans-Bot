@@ -1,19 +1,153 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Map Ban</title>
+
+    <meta charset="UTF-8">
+
+    <title>Map Ban - {{ match.match_code }}</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', path='css/map_ban.css') }}"
+    >
+
 </head>
 
 <body>
 
-<h1>Map Ban</h1>
+<div class="container">
 
-<h2>Match {{ match.match_code }}</h2>
+    <!-- ========================================= -->
+    <!-- HEADER -->
+    <!-- ========================================= -->
 
-{% for map in maps %}
-    <button>{{ map }}</button>
-{% endfor %}
+    <header class="match-header">
+
+        <div>
+
+            <h1>
+
+                Match {{ match.match_code }}
+
+            </h1>
+
+            <p>
+
+                Map Ban Phase
+
+            </p>
+
+        </div>
+
+        <div class="match-status banning">
+
+            Map Ban
+
+        </div>
+
+    </header>
+
+
+    <!-- ========================================= -->
+    <!-- STATUS -->
+    <!-- ========================================= -->
+
+    <section class="draft-status">
+
+        <div class="timer-card">
+
+            <span class="label">
+
+                Ban Timer
+
+            </span>
+
+            <span id="ban-timer">
+
+                30
+
+            </span>
+
+        </div>
+
+        <div class="current-pick-card">
+
+            <span class="label">
+
+                Current Captain
+
+            </span>
+
+            <span id="current-ban">
+
+                Waiting...
+
+            </span>
+
+        </div>
+
+    </section>
+
+
+    <!-- ========================================= -->
+    <!-- MAP GRID -->
+    <!-- ========================================= -->
+
+    <section class="map-grid">
+
+        {% for map in maps %}
+
+        <button
+            class="map-card"
+            data-map="{{ map.displayName }}"
+        >
+
+            <img
+                src="{{ map.splash }}"
+                alt="{{ map.displayName }}"
+            >
+
+            <div class="map-overlay">
+
+                {{ map.displayName }}
+
+            </div>
+
+        </button>
+
+        {% endfor %}
+
+    </section>
+
+
+    <!-- ========================================= -->
+    <!-- MATCH INFO -->
+    <!-- ========================================= -->
+
+    <section class="match-info">
+
+        <h2>
+
+            Banned Maps
+
+        </h2>
+
+        <div id="banned-maps">
+
+            None
+
+        </div>
+
+    </section>
+
+</div>
+
+<script>
+    const MATCH_CODE = "{{ match.match_code }}";
+</script>
+
+<script src="/static/js/map_ban.js"></script>
 
 </body>
 

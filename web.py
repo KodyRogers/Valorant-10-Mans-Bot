@@ -24,6 +24,7 @@ from routes.pick_request import PickRequest
 from routes.login import router
 
 import time
+import requests
 
 app = FastAPI()
 
@@ -201,9 +202,11 @@ async def map_ban_page(request: Request, match_code: str):
         if not match:
             return RedirectResponse("/")
 
-        maps = [
+        maps_name = [
+            "Abyss",
             "Ascent",
             "Bind",
+            "Breeze",
             "Corrode",
             "Fracture",
             "Haven",
@@ -211,8 +214,21 @@ async def map_ban_page(request: Request, match_code: str):
             "Lotus",
             "Pearl",
             "Split",
-            "Sunset"
+            "Sunset",
+            "Summit",
         ]
+
+        maps = requests.get("https://valorant-api.com/v1/maps").json()["data"]
+        maps = [
+            map for map in maps
+            if map["displayName"] in maps_name
+        ]   
+
+        maps.sort(
+            key=lambda x: maps_name.index(x["displayName"])
+        )
+          
+        print([map["displayName"] for map in maps])
 
         return templates.TemplateResponse(
             "map_ban.html",
@@ -252,6 +268,20 @@ async def draft_state(match_code: str):
             return {"success": False}
         print(f"Draft state requested for match {match_code}")
         return await DraftManager.get_draft_state(
+            session,
+            match
+        )
+
+@app.get("/match/{match_code}/mapban/state")
+async def map_ban_state(match_code: str):
+    async with SessionLocal() as session:
+
+        match = await MatchManager.getMatch(session, match_code)
+        print(f"Map ban state requested for match {match_code}")
+        if not match:
+            return {"success": False}
+        print(f"Map ban state requested for match {match_code}")
+        return await DraftManager.get_map_ban_state(
             session,
             match
         )

@@ -22,10 +22,9 @@ async def rico_test():
     for player in players:
         print (player["name"])
 
-async def main():
-
+async def update_match_players():
     match_id = 3  # Change this to the match you want to reset
-
+    
     async with SessionLocal() as session:
 
         await session.execute(
@@ -46,6 +45,10 @@ async def main():
         await session.commit()
 
     print(f"Reset draft for match {match_id}.")
+
+async def main():
+    await rico_test()
+    
 
 if __name__ == "__main__":
     asyncio.run(main())
