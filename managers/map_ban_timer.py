@@ -1,113 +1,167 @@
 import asyncio
-
-from datetime import UTC
-from datetime import datetime
-from datetime import timedelta
+import time
 
 from database import SessionLocal
 
-from models import Match
-
-from managers.map_ban_manager import MapBanManager
+from managers.websocket_manager import draft_connections
 
 
 class MapTimer:
 
-    DURATION = 30
+    #
+    # Running timers
+    #
+    timers = {}
 
-    tasks = {}
+    started = {}
+
+    #
+    # Length of each phase
+    #
+    PHASE_TIME = 30
+
+
+    # ===========================
+    # START TIMER
+    # ===========================
 
     @staticmethod
-    def start(match):
+    async def start(match_id: int):
 
-        print(f"Starting map timer for match {match.match_id}")
+        #
+        # Cancel previous timer
+        #
+        await MapTimer.cancel(match_id)
 
-        match.timer_end = (
-            datetime.now(UTC) +
-            timedelta(seconds=MapTimer.DURATION)
+        MapTimer.started[match_id] = time.time()
+
+        task = asyncio.create_task(
+
+            MapTimer._run(match_id)
+
         )
 
-        task = MapTimer.tasks.get(match.match_id)
+        MapTimer.timers[match_id] = task
 
-        if task:
-            task.cancel()
 
-        MapTimer.tasks[match.match_id] = asyncio.create_task(
-            MapTimer.run(match.match_id)
-        )
-
+    # ===========================
+    # GET REMAINING
+    # ===========================
 
     @staticmethod
-    async def run(match_id):
+    def get_remaining(match_id):
 
-        try:
+        started = MapTimer.started.get(match_id)
 
-            while True:
+        if started is None:
+            return MapTimer.PHASE_TIME
 
-                async with SessionLocal() as session:
-
-                    match = await session.get(
-                        Match,
-                        match_id
-                    )
-
-                    if match is None:
-                        return
-
-                    if match.status not in (
-                        "VOTE",
-                        "MAP_BAN",
-                        "SIDE"
-                    ):
-                        return
-
-                    remaining = MapTimer.get_remaining(match)
-
-                    if remaining <= 0:
-
-                        if match.status == "VOTE":
-
-                            await MapBanManager.finish_vote(
-                                session,
-                                match
-                            )
-
-                        elif match.status == "MAP_BAN":
-
-                            # await MapBanManager.auto_ban(
-                            #     session,
-                            #     match
-                            # )
-                            pass
-
-                        elif match.status == "SIDE":
-
-                            # await MapBanManager.random_side(
-                            #     session,
-                            #     match
-                            # )
-                            pass
-
-                        return
-
-                await asyncio.sleep(1)
-
-        except asyncio.CancelledError:
-            pass
-
-
-    @staticmethod
-    def get_remaining(match):
-
-        if match.timer_end is None:
-            return 0
+        elapsed = int(time.time() - started)
 
         return max(
             0,
-            int(
-                (
-                    match.timer_end -
-                    datetime.now(UTC)
-                ).total_seconds()
-            )
+            MapTimer.PHASE_TIME - elapsed
         )
+
+
+    # ===========================
+    # CANCEL TIMER
+    # ===========================
+
+    @staticmethod
+    async def cancel(match_id: int):
+
+        task = MapTimer.timers.pop(
+            match_id,
+            None
+        )
+
+        if task:
+
+            task.cancel()
+
+
+    # ===========================
+    # TIMER LOOP
+    # ===========================
+
+    @staticmethod
+    async def _run(match_id: int):
+
+        from managers.match_manager import MatchManager
+        from managers.map_ban_manager import MapBanManager
+
+        try:
+
+            await asyncio.sleep(
+                MapTimer.PHASE_TIME
+            )
+
+            async with SessionLocal() as session:
+
+                match = await MatchManager.get_match_by_id(
+                    session,
+                    match_id
+                )
+
+                if not match:
+                    return
+
+                #
+                # Match already moved on?
+                #
+
+                if match.status not in (
+                    "VOTE",
+                    "MAP_BAN",
+                    "SIDE"
+                ):
+                    return
+
+                #
+                # Vote timeout
+                #
+
+                if match.status == "VOTE":
+
+                    await MapBanManager.finish_vote(
+                        session,
+                        match
+                    )
+
+                #
+                # Ban timeout
+                #
+
+                elif match.status == "MAP_BAN":
+                    pass
+                    # await MapBanManager.auto_ban(
+                    #     session,
+                    #     match
+                    # )
+
+                #
+                # Side timeout
+                #
+
+                elif match.status == "SIDE":
+                    pass
+                    # await MapBanManager.random_side(
+                    #     session,
+                    #     match
+                    # )
+
+                await draft_connections.broadcast(
+                    match.match_code,
+                    {
+                        "type": "refresh"
+                    }
+                )
+
+        except asyncio.CancelledError:
+
+            #
+            # Timer cancelled
+            #
+
+            pass

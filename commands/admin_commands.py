@@ -4,7 +4,7 @@ from managers.draft_timer import DraftTimer
 from managers.queue_manager import QueueManager
 from views.queue_view import QueueView
 from mock.mock_players import MockPlayers
-
+from database import SessionLocal
 
 class Admin(commands.Cog):
 
@@ -114,24 +114,14 @@ class Admin(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def maptimer(self, ctx, match_id: int = 1):
+        
         from managers.map_ban_timer import MapTimer
-        from managers.match_manager import MatchManager
-        print(match_id)
-        match = await MatchManager.getMatch(match_id)
-        await MapTimer.start(match)
+            
+        print("GOT HERE")
+        await MapTimer.start(match_id)
+
 
         await ctx.send(f"Started map timer for {match_id}.")
-
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    async def cancelmaptimer(self, ctx, match_id: int = 1):
-
-        from managers.map_ban_timer import MapTimer
-        from managers.match_manager import MatchManager
-        match = await MatchManager.getMatch(match_id)
-        await MapTimer.cancel(match)
-
-        await ctx.send(f"Cancelled map timer for {match_id}.")
 
 async def setup(bot):
     await bot.add_cog(Admin(bot))

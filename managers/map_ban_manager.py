@@ -4,7 +4,6 @@ from collections import Counter
 import random
 
 
-
 class MapBanManager:
 
     @staticmethod
@@ -141,14 +140,20 @@ class MapBanManager:
 
     @staticmethod
     async def get_map_ban_state(session, match):
+
+        from managers.map_ban_timer import MapTimer
+
         banned_maps = await MapBanManager.get_banned_maps(session, match)
         available_maps = await MapBanManager.get_available_maps(session, match)
         current_captain = await MapBanManager.get_current_captain(session, match)
+
+        time_remaining = MapTimer.get_remaining(match.match_id)
 
         return {
             "success": True,
             "status": match.status,
             "banned_maps": banned_maps,
             "available_maps": available_maps,
-            "current_captain": current_captain.discord_id if current_captain else None
+            "current_captain": current_captain.discord_id if current_captain else None,
+            "time_remaining": time_remaining
         }

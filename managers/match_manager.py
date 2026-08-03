@@ -90,6 +90,11 @@ class MatchManager:
         return result.scalars().first()
 
     @staticmethod
+    async def getMatchByID(session, match_id):
+        result = await session.execute(select(Match).filter_by(match_id=match_id))
+        return result.scalars().first()
+
+    @staticmethod
     async def get_match_players(session, match_id: int):
         result = await session.execute(select(MatchPlayer).filter_by(match_id=match_id))
         return result.scalars().all()

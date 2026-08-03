@@ -2,6 +2,8 @@ const socket = new WebSocket(
     `ws://${window.location.host}/ws/match/${MATCH_CODE}`
 );
 
+let timerInterval = null;
+
 socket.onopen = async () => {
 
     console.log("Connected");
@@ -137,7 +139,29 @@ function updateCurrentCaptain(captain) {
 
 function updateTimer(seconds) {
 
-    document.getElementById("ban-timer").textContent = seconds;
+    clearInterval(timerInterval);
+
+    const timer = document.getElementById("ban-timer");
+
+    timer.textContent = seconds;
+
+    timerInterval = setInterval(() => {
+
+        seconds--;
+
+        if (seconds <= 0) {
+
+            timer.textContent = 0;
+
+            clearInterval(timerInterval);
+
+            return;
+
+        }
+
+        timer.textContent = seconds;
+
+    }, 1000);
 
 }
 
@@ -230,7 +254,29 @@ document.querySelectorAll(".side-button").forEach(button => {
 /* ========================================= */
 function updateVoteTimer(seconds) {
 
-    document.getElementById("vote-timer").textContent = seconds;
+    clearInterval(timerInterval);
+
+    const timer = document.getElementById("vote-timer");
+
+    timer.textContent = seconds;
+
+    timerInterval = setInterval(() => {
+
+        seconds--;
+
+        if (seconds <= 0) {
+
+            timer.textContent = 0;
+
+            clearInterval(timerInterval);
+
+            return;
+
+        }
+
+        timer.textContent = seconds;
+
+    }, 1000);
 
 }
 

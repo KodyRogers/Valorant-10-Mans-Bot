@@ -46,8 +46,22 @@ async def update_match_players():
 
     print(f"Reset draft for match {match_id}.")
 
+async def update_match_status():
+    match_id = 1
+    async with SessionLocal() as session:
+    
+        await session.execute(
+            update(Match).where(
+                Match.match_id == match_id
+            ).values(status="VOTE")
+        )
+            
+        await session.commit()
+
+    print(f"updated status for match {match_id}.")
+
 async def main():
-    await update_match_players()
+    await update_match_status()
     
 
 if __name__ == "__main__":

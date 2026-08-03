@@ -203,32 +203,15 @@ async def map_ban_page(request: Request, match_code: str):
         if not match:
             return RedirectResponse("/")
 
-        maps_name = [
-            "Abyss",
-            "Ascent",
-            "Bind",
-            "Breeze",
-            "Corrode",
-            "Fracture",
-            "Haven",
-            "Icebox",
-            "Lotus",
-            "Pearl",
-            "Split",
-            "Sunset",
-            "Summit",
-        ]
-
-        match.map_pool = maps_name
 
         maps = requests.get("https://valorant-api.com/v1/maps").json()["data"]
         maps = [
             map for map in maps
-            if map["displayName"] in maps_name
+            if map["displayName"] in match.map_pool
         ]   
 
         maps.sort(
-            key=lambda x: maps_name.index(x["displayName"])
+            key=lambda x: match.map_pool.index(x["displayName"])
         )
           
         print([map["displayName"] for map in maps])
