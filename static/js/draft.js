@@ -73,7 +73,7 @@ async function loadDraftState() {
     updateTeam("team1", data.team_1_players);
     updateTeam("team2", data.team_2_players);
 
-    if (data.status === "MAP_BAN") {
+    if (data.status === "VOTE" || data.status === "MAP_BAN" || data.status === "SIDE") {
 
             document.getElementById("current-pick").textContent =
                 "Draft Complete!";

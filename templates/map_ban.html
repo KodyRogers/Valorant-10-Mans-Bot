@@ -40,7 +40,7 @@
 
         </div>
 
-        <div class="match-status banning">
+        <div class="match-status banning" id="phase-title">
 
             Map Ban
 
@@ -48,94 +48,241 @@
 
     </header>
 
-
     <!-- ========================================= -->
-    <!-- STATUS -->
-    <!-- ========================================= -->
-
-    <section class="draft-status">
-
-        <div class="timer-card">
-
-            <span class="label">
-
-                Ban Timer
-
-            </span>
-
-            <span id="ban-timer">
-
-                30
-
-            </span>
-
-        </div>
-
-        <div class="current-pick-card">
-
-            <span class="label">
-
-                Current Captain
-
-            </span>
-
-            <span id="current-ban">
-
-                Waiting...
-
-            </span>
-
-        </div>
-
-    </section>
-
-
-    <!-- ========================================= -->
-    <!-- MAP GRID -->
+    <!-- PHASE 1 - MAP POOL VOTE -->
     <!-- ========================================= -->
 
-    <section class="map-grid">
+    <section id="vote-section" hidden>
 
-        {% for map in maps %}
+        <!-- STATUS -->
 
-        <button
-            class="map-card"
-            data-map="{{ map.displayName }}"
-        >
+        <section class="draft-status">
 
-            <img
-                src="{{ map.splash }}"
-                alt="{{ map.displayName }}"
-            >
+            <div class="timer-card">
 
-            <div class="map-overlay">
+                <span class="label">
 
-                {{ map.displayName }}
+                    Vote Timer
+
+                </span>
+
+                <span id="vote-timer">
+
+                    30
+
+                </span>
 
             </div>
 
-        </button>
+            <div class="current-pick-card">
 
-        {% endfor %}
+                <span class="label">
+
+                    Votes Cast
+
+                </span>
+
+                <span id="vote-count">
+
+                    0 / 10
+
+                </span>
+
+            </div>
+
+        </section>
+
+        <!-- VOTING -->
+
+        <section class="match-info">
+
+            <h2>
+
+                Vote for the Map Pool
+
+            </h2>
+
+            <p>
+
+                Every player gets one vote. The winning pool will be used for map bans.
+
+            </p>
+
+            <div id="map-pool-options">
+
+                <button
+                    class="pool-button"
+                    data-pool="ALL MAPS"
+                >
+                    <h3>ALL MAPS</h3>
+                    <p>Every available Valorant map.</p>
+                </button>
+
+                <button
+                    class="pool-button"
+                    data-pool="COMPETITIVE POOL"
+                >
+                    <h3>COMPETITIVE POOL</h3>
+                    <p>Current ranked competitive map rotation.</p>
+                </button>
+
+                <button
+                    class="pool-button"
+                    data-pool="WEEKLY POOL"
+                >
+                    <h3>WEEKLY POOL</h3>
+                    <p>This week's featured map pool.</p>
+                </button>
+
+                <button
+                    class="pool-button"
+                    data-pool="RANDOM"
+                >
+                    <h3>RANDOM</h3>
+                    <p>Skip bans and play a random map.</p>
+                </button>
+
+            </div>
+
+        </section>
+
+    </section>
+    
+    <!-- ========================================= -->
+    <!-- PHASE 2 - MAP BANS -->
+    <!-- ========================================= -->
+
+    <section id="ban-section">
+
+        <!-- STATUS -->
+
+        <section class="draft-status">
+
+            <div class="timer-card">
+
+                <span class="label">
+
+                    Ban Timer
+
+                </span>
+
+                <span id="ban-timer">
+
+                    30
+
+                </span>
+
+            </div>
+
+            <div class="current-pick-card">
+
+                <span class="label">
+
+                    Current Captain
+
+                </span>
+
+                <span id="current-ban">
+
+                    Waiting...
+
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- MAP GRID -->
+
+        <section class="map-grid">
+
+            {% for map in maps %}
+
+            <button
+                class="map-card"
+                data-map="{{ map.displayName }}"
+            >
+
+                <img
+                    src="{{ map.splash }}"
+                    alt="{{ map.displayName }}"
+                >
+
+                <div class="map-overlay">
+
+                    {{ map.displayName }}
+
+                </div>
+
+            </button>
+
+            {% endfor %}
+
+        </section>
+
+
+        <!-- BANNED MAPS -->
+
+        <section class="match-info">
+
+            <h2>
+
+                Banned Maps
+
+            </h2>
+
+            <div id="banned-maps">
+
+                None
+
+            </div>
+
+        </section>
 
     </section>
 
-
     <!-- ========================================= -->
-    <!-- MATCH INFO -->
+    <!-- PHASE 3 - SIDE SELECTION -->
     <!-- ========================================= -->
 
-    <section class="match-info">
+    <section id="side-section" hidden>
 
-        <h2>
+        <div class="match-info">
 
-            Banned Maps
+            <h2>
 
-        </h2>
+                Choose Starting Side
 
-        <div id="banned-maps">
+            </h2>
 
-            None
+            <h3 id="selected-map">
+
+                Map
+
+            </h3>
+
+            <div class="side-buttons">
+
+                <button
+                    class="side-button"
+                    data-side="ATTACK"
+                >
+
+                    ATTACK
+
+                </button>
+
+                <button
+                    class="side-button"
+                    data-side="DEFENSE"
+                >
+
+                    DEFENSE
+
+                </button>
+
+            </div>
 
         </div>
 

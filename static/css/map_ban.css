@@ -20,6 +20,17 @@ body {
 }
 
 /* ========================================= */
+/* PHASE SECTIONS */
+/* ========================================= */
+
+#vote-section,
+#ban-section,
+#side-section {
+
+    width: 100%;
+}
+
+/* ========================================= */
 /* HEADER */
 /* ========================================= */
 
@@ -53,9 +64,19 @@ body {
     font-weight: bold;
 }
 
+.voting {
+
+    background: #059669;
+}
+
 .banning {
 
     background: #2563eb;
+}
+
+.side-select {
+
+    background: #7c3aed;
 }
 
 /* ========================================= */
@@ -65,6 +86,7 @@ body {
 .draft-status {
 
     display: grid;
+
     grid-template-columns: 1fr 1fr;
 
     gap: 20px;
@@ -99,6 +121,78 @@ body {
     font-size: 28px;
 
     font-weight: bold;
+}
+
+/* ========================================= */
+/* MAP POOL VOTE */
+/* ========================================= */
+
+/* ========================================= */
+/* MAP POOL VOTE */
+/* ========================================= */
+
+#map-pool-options {
+
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 24px;
+
+    margin-top: 25px;
+}
+
+.pool-button {
+
+    background: #1f2937;
+
+    border: 2px solid #374151;
+
+    border-radius: 12px;
+
+    color: white;
+
+    padding: 30px;
+
+    cursor: pointer;
+
+    text-align: left;
+
+    transition: .2s;
+}
+
+.pool-button:hover {
+
+    transform: translateY(-3px);
+
+    border-color: #2563eb;
+
+    background: #293548;
+}
+
+.pool-button.selected {
+
+    border-color: #2563eb;
+
+    background: #2563eb;
+}
+
+.pool-button h3 {
+
+    margin: 0;
+
+    font-size: 24px;
+}
+
+.pool-button p {
+
+    margin-top: 15px;
+
+    color: #d1d5db;
+
+    font-size: 16px;
+
+    line-height: 1.5;
 }
 
 /* ========================================= */
@@ -139,7 +233,7 @@ body {
 
     transform: translateY(-3px);
 
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, .4);
 }
 
 .map-card img {
@@ -174,9 +268,9 @@ body {
 
     font-weight: bold;
 
-    color: white;
-
     text-align: center;
+
+    color: white;
 
     background: linear-gradient(
         transparent,
@@ -192,20 +286,7 @@ body {
 
     opacity: .35;
 
-    cursor: default;
-}
-
-/* ========================================= */
-/* BANNED */
-/* ========================================= */
-
-.map-card.banned {
-
-    filter: grayscale(100%);
-
-    opacity: .35;
-
-    cursor: default;
+    pointer-events: none;
 }
 
 /* ========================================= */
@@ -219,6 +300,8 @@ body {
     border-radius: 12px;
 
     padding: 25px;
+
+    margin-bottom: 30px;
 }
 
 .match-info h2 {
@@ -231,4 +314,108 @@ body {
     font-size: 18px;
 
     color: #d1d5db;
+}
+
+/* ========================================= */
+/* SIDE SELECT */
+/* ========================================= */
+
+#selected-map {
+
+    text-align: center;
+
+    font-size: 42px;
+
+    margin: 35px 0;
+
+    color: white;
+}
+
+.side-buttons {
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 30px;
+
+    margin-top: 30px;
+}
+
+.side-button {
+
+    width: 220px;
+
+    padding: 20px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background: #2563eb;
+
+    color: white;
+
+    font-size: 24px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: .2s;
+}
+
+.side-button:hover {
+
+    transform: translateY(-3px);
+
+    background: #1d4ed8;
+}
+
+.side-button.selected {
+
+    background: #059669;
+}
+
+/* ========================================= */
+/* RESPONSIVE */
+/* ========================================= */
+
+@media (max-width: 1200px) {
+
+    .map-grid {
+
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+}
+
+@media (max-width: 900px) {
+
+    .draft-status {
+
+        grid-template-columns: 1fr;
+    }
+
+    .map-grid {
+
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .side-buttons {
+
+        flex-direction: column;
+
+        align-items: center;
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .map-grid {
+
+        grid-template-columns: 1fr;
+    }
+
 }

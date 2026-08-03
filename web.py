@@ -13,6 +13,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from config import SESSION_SECRET
 
 from database import SessionLocal
+from managers.map_ban_manager import MapBanManager
 from managers.match_manager import MatchManager
 from managers.player_manager import PlayerManager
 from managers.draft_manager import DraftManager
@@ -137,7 +138,7 @@ async def match_info(match_code: str, request: Request, start_timer: bool = Fals
     
             if match.status == "DRAFTING":
                 return RedirectResponse(f"/match/{match_code}/draft")
-            elif match.status == "MAP_BAN":
+            elif match.status == "VOTE" or match.status == "MAP_BAN" or match.status == "SIDE":
                 return RedirectResponse(f"/match/{match_code}/map-ban")
             elif match.status == "LIVE":
                 return RedirectResponse(f"/match/{match_code}/live")
@@ -177,7 +178,7 @@ async def draft_page(request: Request, match_code: str):
     
             if match.status == "DRAFTING":
                 return RedirectResponse(f"/match/{match_code}/draft")
-            elif match.status == "MAP_BAN":
+            elif match.status == "VOTE" or match.status == "MAP_BAN" or match.status == "SIDE":
                 return RedirectResponse(f"/match/{match_code}/map-ban")
             elif match.status == "LIVE":
                 return RedirectResponse(f"/match/{match_code}/live")
@@ -217,6 +218,8 @@ async def map_ban_page(request: Request, match_code: str):
             "Sunset",
             "Summit",
         ]
+
+        match.map_pool = maps_name
 
         maps = requests.get("https://valorant-api.com/v1/maps").json()["data"]
         maps = [
@@ -264,9 +267,11 @@ async def draft_state(match_code: str):
 
         match = await MatchManager.getMatch(session, match_code)
         print(f"Draft state requested for match {match_code}")
+
         if not match:
             return {"success": False}
         print(f"Draft state requested for match {match_code}")
+
         return await DraftManager.get_draft_state(
             session,
             match
@@ -281,7 +286,7 @@ async def map_ban_state(match_code: str):
         if not match:
             return {"success": False} 
         
-        return await DraftManager.get_map_ban_state(
+        return await MapBanManager.get_map_ban_state(
             session,
             match
         )
@@ -320,8 +325,37 @@ async def draft_socket(websocket: WebSocket, match_code: str):
                                 "type": "refresh"
                             }
                         )
+
+            elif data["type"] == "vote_pool":
+
+                async with SessionLocal() as session:
+
+                    match = await MatchManager.getMatch(session, match_code)
+
+                    if not match:
+                        await websocket.send_json({
+                            "success": False,
+                            "error": "Match not found."
+                        })
+                        continue
+
+                    await MapBanManager.vote(
+                        session,
+                        match,
+                        websocket.session["discord_id"],
+                        data['pool']
+                    )
+
                     
-                #print("Player selected:", data["player_id"])
+                    await draft_connections.broadcast(
+                        match_code,
+                        {
+                            "type": "refresh"
+                        }
+                    )
+                    
+            
+            print("else:", data)
 
     except WebSocketDisconnect:
         draft_connections.disconnect(match_code, websocket)

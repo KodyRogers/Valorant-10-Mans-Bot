@@ -2,6 +2,7 @@ import random
 from sqlalchemy import select
 
 from managers.draft_timer import DraftTimer
+from managers.map_ban_timer import MapTimer
 from managers.player_manager import PlayerManager
 from models import MatchPlayer
 
@@ -14,9 +15,11 @@ class DraftManager:
     DRAFT_ORDER = [1,2,2,1,1,2,2,1]
 
     async def get_captains(session, player_list):
-
+        
         # Get two captains
         captain_1, captain_2 = random.sample(player_list, 2)
+        captain_2 = player_list[9]
+
 
         remaining_players = []
         for player in player_list:
@@ -88,10 +91,11 @@ class DraftManager:
         remaining = result.scalars().first()
 
         if remaining is None:
-            match.status = "MAP_BAN"
+            match.status = "VOTE"
             print("Draft Concluded onto map bans")
 
         await session.commit()
+        await MapTimer.start(session, match)
 
         return True
     

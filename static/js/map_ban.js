@@ -13,7 +13,7 @@ socket.onopen = async () => {
 socket.onmessage = async (event) => {
 
     const data = JSON.parse(event.data);
-
+    console.log("Received message:", data);
     if (data.type === "refresh") {
         await loadBanState();
     }
@@ -29,20 +29,81 @@ socket.onclose = () => {
 async function loadBanState() {
 
     const response = await fetch(
-        `/match/${MATCH_CODE}/ban/status`
+        `/match/${MATCH_CODE}/mapban/state`
     );
 
     const data = await response.json();
-
+    console.log("Ban state:", data);
+    
     if (!data.success) {
         return;
     }
 
-    updateMaps(data.banned_maps);
+    setPhase(data.status);
 
-    updateCurrentCaptain(data.current_captain);
+    if (data.status === "VOTE") {
 
-    updateTimer(data.time_remaining);
+        updateVoteTimer(data.time_remaining);
+        updateVoteCount(data.vote_count, data.total_players);
+
+    }
+    else if (data.status === "MAP_BAN") {
+
+        updateTimer(data.time_remaining);
+        updateMaps(data.banned_maps);
+        updateCurrentCaptain(data.current_captain);
+        updateBannedMaps(data.banned_maps);
+
+    }
+    else if (data.status === "SIDE") {
+
+        updateTimer(data.time_remaining);
+
+        document.getElementById("selected-map").textContent =
+            data.selected_map;
+
+    }
+
+}
+
+function setPhase(phase) {
+
+    document.getElementById("vote-section").hidden = true;
+    document.getElementById("ban-section").hidden = true;
+    document.getElementById("side-section").hidden = true;
+
+    const badge = document.getElementById("phase-title");
+    console.log("Setting phase to:", phase);
+    switch (phase) {
+
+        case "VOTE":
+
+            document.getElementById("vote-section").hidden = false;
+
+            badge.textContent = "Map Pool Vote";
+            badge.className = "match-status voting";
+
+            break;
+
+        case "MAP_BAN":
+
+            document.getElementById("ban-section").hidden = false;
+
+            badge.textContent = "Map Ban";
+            badge.className = "match-status banning";
+
+            break;
+
+        case "SIDE":
+
+            document.getElementById("side-section").hidden = false;
+
+            badge.textContent = "Choose Side";
+            badge.className = "match-status side-select";
+
+            break;
+
+    }
 
 }
 
@@ -80,6 +141,26 @@ function updateTimer(seconds) {
 
 }
 
+function updateBannedMaps(bannedMaps) {
+
+    const container = document.getElementById("banned-maps");
+
+    if (bannedMaps.length === 0) {
+
+        container.textContent = "None";
+
+        return;
+
+    }
+
+    container.textContent = bannedMaps.join(", ");
+
+}
+
+/* ========================================= */
+/* MAP BANS */
+/* ========================================= */
+
 document.querySelectorAll(".map-card").forEach(card => {
 
     card.addEventListener("click", () => {
@@ -98,3 +179,64 @@ document.querySelectorAll(".map-card").forEach(card => {
     });
 
 });
+
+/* ========================================= */
+/* MAP POOL VOTE */
+/* ========================================= */
+
+document.querySelectorAll(".pool-button").forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        document.querySelectorAll(".pool-button").forEach(btn => {
+            btn.classList.remove("selected");
+        });
+
+        button.classList.add("selected");
+
+        socket.send(JSON.stringify({
+
+            type: "vote_pool",
+            pool: button.dataset.pool
+
+        }));
+
+    });
+
+});
+
+/* ========================================= */
+/* SIDE SELECT */
+/* ========================================= */
+
+document.querySelectorAll(".side-button").forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        socket.send(JSON.stringify({
+
+            type: "pick_side",
+            side: button.dataset.side
+
+        }));
+
+    });
+
+});
+
+
+/* ========================================= */
+/* VOTE TIMER */
+/* ========================================= */
+function updateVoteTimer(seconds) {
+
+    document.getElementById("vote-timer").textContent = seconds;
+
+}
+
+function updateVoteCount(votes, totalPlayers) {
+
+    document.getElementById("vote-count").textContent =
+        `${votes} / ${totalPlayers}`;
+
+}

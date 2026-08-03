@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy import (
+    JSON,
     Boolean,
     Column,
     DateTime,
@@ -137,19 +138,13 @@ class Match(Base):
         nullable=True
     )
 
-    # Team Names
-    team_1_name = Column(
-        String,
-        default="Team 1"
-    )
-
-    team_2_name = Column(
-        String,
-        default="Team 2"
-    )
-
     # Match Information
     selected_map = Column(
+        String,
+        nullable=True
+    )
+
+    team_1_starting_side = Column(
         String,
         nullable=True
     )
@@ -160,9 +155,19 @@ class Match(Base):
     )
 
     # Website URL
-    draft_url = Column(
+    match_url = Column(
         String,
         nullable=True
+    )
+
+    map_pool = Column(
+        JSON,
+        default=list
+    )
+
+    banned_maps = Column(
+        JSON,
+        default=list
     )
 
     players = relationship(
@@ -269,3 +274,18 @@ class Queue(Base):
         String,
         nullable=True
     )
+
+class MatchVote(Base):
+    __tablename__ = "match_votes"
+
+    match_id = Column(
+        ForeignKey("matches.match_id"),
+        primary_key=True
+    )
+
+    discord_id = Column(
+        ForeignKey("players.discord_id"),
+        primary_key=True
+    )
+
+    vote = Column(String)
