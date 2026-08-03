@@ -11,14 +11,14 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 async def rico_test():
     
-    test = await henrik.get_matches("rico", "mdc", 2)
+    test = await henrik.get_matches("orzo", "bigum", 2)
 
     with open("matches.json", "w", encoding="utf-8") as f:
         json.dump(test, f, indent=4, ensure_ascii=False)
 
-    map = test[1]["metadata"]["map"]["name"]
+    map = test[0]["metadata"]["map"]["name"]
     print(map)
-    players = test[1]["players"]
+    players = test[0]["players"]
     for player in players:
         print (player["name"])
 
@@ -47,7 +47,7 @@ async def update_match_players():
     print(f"Reset draft for match {match_id}.")
 
 async def main():
-    await update_match_players()
+    await rico_test()
     
 
 if __name__ == "__main__":
