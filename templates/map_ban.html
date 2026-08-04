@@ -195,31 +195,7 @@
 
         <!-- MAP GRID -->
 
-        <section class="map-grid">
-
-            {% for map in maps %}
-
-            <button
-                class="map-card"
-                data-map="{{ map.displayName }}"
-            >
-
-                <img
-                    src="{{ map.splash }}"
-                    alt="{{ map.displayName }}"
-                >
-
-                <div class="map-overlay">
-
-                    {{ map.displayName }}
-
-                </div>
-
-            </button>
-
-            {% endfor %}
-
-        </section>
+        <section id="map-grid" class="map-grid"></section>
 
 
         <!-- BANNED MAPS -->
@@ -248,43 +224,144 @@
 
     <section id="side-section" hidden>
 
-        <div class="match-info">
+        <!-- STATUS ROW -->
 
-            <h2>
+        <section class="draft-status">
 
-                Choose Starting Side
+            <div class="timer-card">
 
-            </h2>
+                <span class="label">
 
-            <h3 id="selected-map">
+                    Side Timer
 
-                Map
+                </span>
 
-            </h3>
+                <span id="side-timer">
 
-            <div class="side-buttons">
+                    30
 
-                <button
-                    class="side-button"
-                    data-side="ATTACK"
-                >
-
-                    ATTACK
-
-                </button>
-
-                <button
-                    class="side-button"
-                    data-side="DEFENSE"
-                >
-
-                    DEFENSE
-
-                </button>
+                </span>
 
             </div>
 
-        </div>
+            <div class="current-pick-card">
+
+                <span class="label">
+
+                    Current Captain
+
+                </span>
+
+                <span id="side-captain">
+
+                    Waiting...
+
+                </span>
+
+            </div>
+
+            <button
+                class="side-card side-button"
+                data-side="ATTACK"
+            >
+
+                <div class="side-icon">
+
+                    ⚔️
+
+                </div>
+
+                <div class="side-title">
+
+                    ATTACK
+
+                </div>
+
+            </button>
+
+            <button
+                class="side-card side-button"
+                data-side="DEFENSE"
+            >
+
+                <div class="side-icon">
+
+                    🛡️
+
+                </div>
+
+                <div class="side-title">
+
+                    DEFENSE
+
+                </div>
+
+            </button>
+
+        </section>
+
+
+        <!-- MAIN CONTENT -->
+
+        <section class="side-layout">
+
+            <!-- BLUE TEAM -->
+
+            <section class="team-card">
+
+                <h2>
+
+                    Blue Team
+
+                </h2>
+
+                <div id="blue-team">
+
+                    Loading...
+
+                </div>
+
+            </section>
+
+
+            <!-- MAP -->
+
+            <section class="selected-map-card">
+
+                <img
+                    id="selected-map-image"
+                    src=""
+                    alt="Selected Map"
+                >
+
+                <div id="selected-map">
+
+                    Map
+
+                </div>
+
+            </section>
+
+
+            <!-- RED TEAM -->
+
+            <section class="team-card">
+
+                <h2>
+
+                    Red Team
+
+                </h2>
+
+                <div id="red-team">
+
+                    Loading...
+
+                </div>
+
+            </section>
+
+        </section>
 
     </section>
 

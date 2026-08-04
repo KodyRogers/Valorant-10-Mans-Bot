@@ -92,10 +92,13 @@ class DraftManager:
 
         if remaining is None:
             match.status = "VOTE"
+            await session.commit()
+            await MapTimer.start(match.match_id)
             print("Draft Concluded onto map bans")
+            return True
 
         await session.commit()
-        await MapTimer.start(session, match)
+        
 
         return True
     

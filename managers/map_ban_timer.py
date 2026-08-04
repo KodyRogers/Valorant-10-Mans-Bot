@@ -18,7 +18,7 @@ class MapTimer:
     #
     # Length of each phase
     #
-    PHASE_TIME = 10
+    PHASE_TIME = 15
 
 
     # ===========================
@@ -34,7 +34,8 @@ class MapTimer:
         await MapTimer.cancel(match_id)
 
         MapTimer.started[match_id] = time.time()
-
+        
+        print("MAP TIMER STARTED!")
         task = asyncio.create_task(
 
             MapTimer._run(match_id)
@@ -124,9 +125,20 @@ class MapTimer:
 
                 if match.status == "VOTE":
 
-                    await MapBanManager.finish_vote(
+                    success = await MapBanManager.finish_vote(
                         session,
                         match
+                    )
+                    if success:
+                        await draft_connections.broadcast(
+                            match.match_code,
+                            {
+                                "type": "refresh"
+                            }
+                        )
+
+                    await MapTimer.start(
+                        match.match_id
                     )
 
                 #
@@ -134,12 +146,22 @@ class MapTimer:
                 #
 
                 elif match.status == "MAP_BAN":
-                    print("HERE!")
-                    await MapBanManager.auto_ban(
+                    success = await MapBanManager.auto_ban(
                         session,
                         match
                     )
 
+                    if success:
+                        await draft_connections.broadcast(
+                            match.match_code,
+                            {
+                                "type": "refresh"
+                            }
+                        )
+
+                    await MapTimer.start(
+                        match.match_id
+                    )
                 #
                 # Side timeout
                 #
@@ -150,13 +172,6 @@ class MapTimer:
                     #     session,
                     #     match
                     # )
-
-                await draft_connections.broadcast(
-                    match.match_code,
-                    {
-                        "type": "refresh"
-                    }
-                )
 
         except asyncio.CancelledError:
 

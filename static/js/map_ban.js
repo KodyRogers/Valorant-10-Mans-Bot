@@ -50,8 +50,8 @@ async function loadBanState() {
 
     }
     else if (data.status === "MAP_BAN") {
-
         updateTimer(data.time_remaining);
+        renderMaps(data.available_maps);
         updateMaps(data.banned_maps);
         updateCurrentCaptain(data.current_captain);
         updateBannedMaps(data.banned_maps);
@@ -59,10 +59,7 @@ async function loadBanState() {
     }
     else if (data.status === "SIDE") {
 
-        updateTimer(data.time_remaining);
-
-        document.getElementById("selected-map").textContent =
-            data.selected_map;
+        updateSideState(data);
 
     }
 
@@ -284,5 +281,131 @@ function updateVoteCount(votes, totalPlayers) {
 
     document.getElementById("vote-count").textContent =
         `${votes} / ${totalPlayers}`;
+
+}
+
+
+function renderMaps(availableMaps) {
+
+    const container = document.getElementById("map-grid");
+
+    container.innerHTML = "";
+
+    for (const map of availableMaps) {
+
+        const button = document.createElement("button");
+        button.className = "map-card";
+        button.dataset.map = map.displayName;
+
+        const img = document.createElement("img");
+        img.src = map.splash;
+        img.alt = map.displayName;
+
+        const overlay = document.createElement("div");
+        overlay.className = "map-overlay";
+        overlay.textContent = map.displayName;
+
+        button.appendChild(img);
+        button.appendChild(overlay);
+
+        button.addEventListener("click", () => {
+
+            if (button.classList.contains("banned")) {
+                return;
+            }
+
+            socket.send(JSON.stringify({
+                type: "ban_map",
+                map: map.displayName
+            }));
+
+        });
+
+        container.appendChild(button);
+    }
+}
+
+function updateSideState(data) {
+
+    updateSideTimer(data.time_remaining);
+
+    document.getElementById("side-captain").textContent =
+        data.current_captain;
+
+    document.getElementById("selected-map").textContent =
+        data.selected_map;
+
+    document.getElementById("selected-map-image").src =
+        data.selected_map_splash;
+
+    renderTeam(
+        "blue-team",
+        data.blue_team
+    );
+
+    renderTeam(
+        "red-team",
+        data.red_team
+    );
+
+}
+
+function renderTeam(id, players) {
+
+    const container = document.getElementById(id);
+
+    container.innerHTML = "";
+
+    players.forEach(player => {
+
+        const div = document.createElement("div");
+
+        div.className = "team-player";
+
+        if (player.is_captain) {
+            div.classList.add("captain");
+        }
+
+        div.innerHTML = `
+            <div class="player-left">
+                ${player.is_captain ? "⭐ " : ""}
+                ${player.riot_name}#${player.riot_tag}
+            </div>
+
+            <div class="player-elo">
+                ${player.elo}
+            </div>
+        `;
+            
+        container.appendChild(div);
+
+    });
+
+}
+
+function updateSideTimer(seconds) {
+
+    clearInterval(timerInterval);
+
+    const timer =
+        document.getElementById("side-timer");
+
+    timer.textContent = seconds;
+
+    timerInterval = setInterval(() => {
+
+        seconds--;
+
+        if (seconds <= 0) {
+
+            timer.textContent = 0;
+            clearInterval(timerInterval);
+            return;
+
+        }
+
+        timer.textContent = seconds;
+
+    }, 1000);
 
 }

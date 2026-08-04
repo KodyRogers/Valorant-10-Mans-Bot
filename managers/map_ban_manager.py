@@ -2,7 +2,12 @@ from models import MatchPlayer, MatchVote
 from sqlalchemy import select
 from collections import Counter
 import random
+import requests
 
+import json
+
+with open("data/maps.json", "r", encoding="utf-8") as f:
+    ALL_MAPS = json.load(f)
 
 class MapBanManager:
 
@@ -10,6 +15,7 @@ class MapBanManager:
     @staticmethod
     async def ban_map(session, match, discord_id, map_name):
         # Check if the player is the current captain
+
         current_captain = await MapBanManager.get_current_captain(session, match)
         if current_captain.discord_id != discord_id:
             print("Player not current captain")
@@ -25,10 +31,17 @@ class MapBanManager:
         if map_name not in available_maps:
             print("Map is not available for banning.")
             return False
-        
-        banned_maps.append(map_name)
-        match.banned_maps = banned_maps
+
+        print(map_name)
+        match.banned_maps.append(map_name)
         await session.commit()
+
+        remaining_maps = await MapBanManager.get_available_maps(session, match)
+        if len(remaining_maps) == 1:
+            match.selected_map = remaining_maps[0]
+            match.status = "SIDE"
+            await session.commit()
+
         return True
 
     @staticmethod
@@ -36,9 +49,8 @@ class MapBanManager:
         get_available_maps = await MapBanManager.get_available_maps(session, match)
         captain = await MapBanManager.get_current_captain(session, match)
         map = random.choice(get_available_maps)
-        print(captain.discord_id)
-        print(map)
-        MapBanManager.ban_map(session, match, captain.discord_id, map)
+        success = await MapBanManager.ban_map(session, match, captain.discord_id, map)
+        return success
         
 
     @staticmethod
@@ -70,7 +82,6 @@ class MapBanManager:
         for map_name in match.map_pool:
             if map_name not in banned_maps:
                 map_list.append(map_name)
-        print(map_list)
         return map_list
 
     @staticmethod
@@ -148,27 +159,41 @@ class MapBanManager:
             match.status = "MAP_BAN"
         
         await session.commit()
-        await MapTimer.start(
-            session,
-            match
-        )
+        return True
 
     @staticmethod
     async def get_map_ban_state(session, match):
 
         from managers.map_ban_timer import MapTimer
+        from managers.match_manager import MatchManager
 
         banned_maps = await MapBanManager.get_banned_maps(session, match)
-        available_maps = await MapBanManager.get_available_maps(session, match)
         current_captain = await MapBanManager.get_current_captain(session, match)
-
+        team_1 = await MatchManager.get_team_players(session, match.match_id, 1)
+        team_2 = await MatchManager.get_team_players(session, match.match_id, 2)
         time_remaining = MapTimer.get_remaining(match.match_id)
+
+        available_maps = [
+            map_data
+            for map_data in ALL_MAPS
+            if map_data["displayName"] in match.map_pool
+        ]
+
+        available_maps.sort(
+            key=lambda m: match.map_pool.index(m["displayName"])
+        )
 
         return {
             "success": True,
             "status": match.status,
             "banned_maps": banned_maps,
             "available_maps": available_maps,
-            "current_captain": current_captain.discord_id if current_captain else None,
-            "time_remaining": time_remaining
+            "current_captain": (
+                current_captain.discord_id
+                if current_captain
+                else None
+            ),
+            "time_remaining": time_remaining,
+            "blue_team": team_1,
+            "red_team": team_2
         }

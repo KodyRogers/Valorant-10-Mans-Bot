@@ -1,0 +1,94 @@
+[
+    {
+        "displayName": "Abyss",
+        "splash": "https://media.valorant-api.com/maps/224b0a95-48b9-f703-1bd8-67aca101a61f/splash.png"
+    },
+    {
+        "displayName": "Ascent",
+        "splash": "https://media.valorant-api.com/maps/7eaecc1b-4337-bbf6-6ab9-04b8f06b3319/splash.png"
+    },
+    {
+        "displayName": "Bind",
+        "splash": "https://media.valorant-api.com/maps/2c9d57ec-4431-9c5e-2939-8f9ef6dd5cba/splash.png"
+    },
+    {
+        "displayName": "Breeze",
+        "splash": "https://media.valorant-api.com/maps/2fb9a4fd-47b8-4e7d-a969-74b4046ebd53/splash.png"
+    },
+    {
+        "displayName": "Corrode",
+        "splash": "https://media.valorant-api.com/maps/1c18ab1f-420d-0d8b-71d0-77ad3c439115/splash.png"
+    },
+    {
+        "displayName": "District",
+        "splash": "https://media.valorant-api.com/maps/690b3ed2-4dff-945b-8223-6da834e30d24/splash.png"
+    },
+    {
+        "displayName": "Drift",
+        "splash": "https://media.valorant-api.com/maps/2c09d728-42d5-30d8-43dc-96a05cc7ee9d/splash.png"
+    },
+    {
+        "displayName": "Fracture",
+        "splash": "https://media.valorant-api.com/maps/b529448b-4d60-346e-e89e-00a4c527a405/splash.png"
+    },
+    {
+        "displayName": "Glitch",
+        "splash": "https://media.valorant-api.com/maps/d6336a5a-428f-c591-98db-c8a291159134/splash.png"
+    },
+    {
+        "displayName": "Haven",
+        "splash": "https://media.valorant-api.com/maps/2bee0dc9-4ffe-519b-1cbd-7fbe763a6047/splash.png"
+    },
+    {
+        "displayName": "Icebox",
+        "splash": "https://media.valorant-api.com/maps/e2ad5c54-4114-a870-9641-8ea21279579a/splash.png"
+    },
+    {
+        "displayName": "Kasbah",
+        "splash": "https://media.valorant-api.com/maps/12452a9d-48c3-0b02-e7eb-0381c3520404/splash.png"
+    },
+    {
+        "displayName": "Lotus",
+        "splash": "https://media.valorant-api.com/maps/2fe4ed3a-450a-948b-6d6b-e89a78e680a9/splash.png"
+    },
+    {
+        "displayName": "Pearl",
+        "splash": "https://media.valorant-api.com/maps/fd267378-4d1d-484f-ff52-77821ed10dc2/splash.png"
+    },
+    {
+        "displayName": "Piazza",
+        "splash": "https://media.valorant-api.com/maps/de28aa9b-4cbe-1003-320e-6cb3ec309557/splash.png"
+    },
+    {
+        "displayName": "Skirmish A",
+        "splash": "https://media.valorant-api.com/maps/a9009649-421f-d5d5-f80c-0cbe02c125bb/splash.png"
+    },
+    {
+        "displayName": "Skirmish B",
+        "splash": "https://media.valorant-api.com/maps/a38a3f9a-4042-844c-8970-a3ac2f7ce93d/splash.png"
+    },
+    {
+        "displayName": "Skirmish C",
+        "splash": "https://media.valorant-api.com/maps/a264de0f-4a04-9c78-c97a-a6b192ce6e86/splash.png"
+    },
+    {
+        "displayName": "Skirmish D",
+        "splash": "https://media.valorant-api.com/maps/1c7555fc-4bc6-3b98-9674-789d47ef6c50/splash.png"
+    },
+    {
+        "displayName": "Skirmish E",
+        "splash": "https://media.valorant-api.com/maps/4490f1d6-4818-bf5f-9b3a-9c9a8dbb52ed/splash.png"
+    },
+    {
+        "displayName": "Split",
+        "splash": "https://media.valorant-api.com/maps/d960549e-485c-e861-8d71-aa9d1aed12a2/splash.png"
+    },
+    {
+        "displayName": "Summit",
+        "splash": "https://media.valorant-api.com/maps/756da597-416b-c0f2-f47b-afbdf28670bc/splash.png"
+    },
+    {
+        "displayName": "Sunset",
+        "splash": "https://media.valorant-api.com/maps/92584fbe-486a-b1b2-9faa-39b0f486b498/splash.png"
+    }
+]

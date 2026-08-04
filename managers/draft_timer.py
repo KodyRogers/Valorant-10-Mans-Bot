@@ -104,7 +104,7 @@ class DraftTimer:
                 #
                 
                 if match.status != "DRAFTING":
-                    print("timer stopped")
+                    print("draft timer stopped")
                     return
                 
                 #

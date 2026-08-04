@@ -317,64 +317,112 @@ body {
 }
 
 /* ========================================= */
-/* SIDE SELECT */
+/* SIDE PHASE */
 /* ========================================= */
 
-#selected-map {
-
-    text-align: center;
-
-    font-size: 42px;
-
-    margin: 35px 0;
-
-    color: white;
+.side-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr 1fr;
+    gap: 24px;
+    margin-top: 24px;
+    align-items: stretch;
 }
 
-.side-buttons {
-
-    display: flex;
-
-    justify-content: center;
-
-    gap: 30px;
-
-    margin-top: 30px;
-}
-
-.side-button {
-
-    width: 220px;
-
-    padding: 20px;
-
-    border: none;
-
+.team-card,
+.selected-map-card {
+    background: #1b1d24;
+    border: 1px solid #303544;
     border-radius: 12px;
+    padding: 20px;
+}
 
-    background: #2563eb;
-
+.team-card h2 {
+    text-align: center;
+    margin-bottom: 18px;
     color: white;
+}
 
-    font-size: 24px;
+.team-card {
+    display: flex;
+    flex-direction: column;
+}
 
+.team-player {
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    background: #242833;
+    border-radius: 8px;
+    color: white;
+}
+
+.team-player.captain {
+    border-left: 4px solid gold;
     font-weight: bold;
+}
+
+.selected-map-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+}
+
+#selected-map-image {
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 16px;
+}
+
+#selected-map {
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+}
+
+/* ========================================= */
+/* SIDE BUTTONS */
+/* ========================================= */
+
+.side-card {
+    flex: 1;
+    background: #242833;
+    border: 2px solid #303544;
+    border-radius: 10px;
+    color: white;
 
     cursor: pointer;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 
     transition: .2s;
 }
 
-.side-button:hover {
-
-    transform: translateY(-3px);
-
-    background: #1d4ed8;
+.side-card:hover:not(:disabled) {
+    border-color: #ff4655;
+    transform: translateY(-2px);
 }
 
-.side-button.selected {
+.side-card.selected {
+    border-color: #43b581;
+    background: #2d4237;
+}
 
-    background: #059669;
+.side-card:disabled {
+    opacity: .5;
+    cursor: default;
+}
+
+.side-icon {
+    font-size: 32px;
+}
+
+.side-title {
+    margin-top: 8px;
+    font-size: 18px;
+    font-weight: bold;
 }
 
 /* ========================================= */

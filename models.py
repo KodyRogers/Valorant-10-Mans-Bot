@@ -10,6 +10,7 @@ from sqlalchemy import (
     String
 )
 from sqlalchemy.orm import relationship
+from sqlalchemy.ext.mutable import MutableList
 
 from database import Base
 
@@ -166,7 +167,7 @@ class Match(Base):
     )
 
     banned_maps = Column(
-        JSON,
+        MutableList.as_mutable(JSON),
         default=list
     )
 

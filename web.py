@@ -204,25 +204,11 @@ async def map_ban_page(request: Request, match_code: str):
         if not match:
             return RedirectResponse("/")
 
-
-        maps = requests.get("https://valorant-api.com/v1/maps").json()["data"]
-        maps = [
-            map for map in maps
-            if map["displayName"] in match.map_pool
-        ]   
-
-        maps.sort(
-            key=lambda x: match.map_pool.index(x["displayName"])
-        )
-          
-        print([map["displayName"] for map in maps])
-
         return templates.TemplateResponse(
             "map_ban.html",
             {
                 "request": request,
-                "match": match,
-                "maps": maps
+                "match": match
             }
         )
 
@@ -337,8 +323,8 @@ async def draft_socket(websocket: WebSocket, match_code: str):
                         }
                     )
                     
-            elif data["type"] == "map_ban":
-                async with SessionLocal as session:
+            elif data["type"] == "ban_map":
+                async with SessionLocal() as session:
                     match = await MatchManager.getMatch(session, match_code)
                     if not match:
                         await websocket.send_json({
@@ -346,8 +332,8 @@ async def draft_socket(websocket: WebSocket, match_code: str):
                             "error": "Match not Found."
                         })
                         continue
-
-                    success = await MapBanManager.ban_map(session, match, websocket.session["discord_id"], data['map'])
+            
+                    success = await MapBanManager.ban_map(session, match, str(websocket.session["discord_id"]), str(data['map']))
                     if success:
                         await MapTimer.start(match.match_id)
                         await draft_connections.broadcast(
