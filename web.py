@@ -19,6 +19,7 @@ from managers.player_manager import PlayerManager
 from managers.draft_manager import DraftManager
 from managers.draft_timer import DraftTimer
 from managers.websocket_manager import draft_connections
+from managers.map_ban_timer import MapTimer
 
 from models import Player
 from routes.pick_request import PickRequest
@@ -310,7 +311,6 @@ async def draft_socket(websocket: WebSocket, match_code: str):
                         )
 
             elif data["type"] == "vote_pool":
-
                 async with SessionLocal() as session:
 
                     match = await MatchManager.getMatch(session, match_code)
@@ -337,7 +337,23 @@ async def draft_socket(websocket: WebSocket, match_code: str):
                         }
                     )
                     
-            
+            elif data["type"] == "map_ban":
+                async with SessionLocal as session:
+                    match = await MatchManager.getMatch(session, match_code)
+                    if not match:
+                        await websocket.send_json({
+                            "success": False,
+                            "error": "Match not Found."
+                        })
+                        continue
+
+                    success = await MapBanManager.ban_map(session, match, websocket.session["discord_id"], data['map'])
+                    if success:
+                        await MapTimer.start(match.match_id)
+                        await draft_connections.broadcast(
+                            match_code, {"type": "refresh"}
+                        )
+
             print("else:", data)
 
     except WebSocketDisconnect:

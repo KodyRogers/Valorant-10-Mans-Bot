@@ -18,7 +18,7 @@ class MapTimer:
     #
     # Length of each phase
     #
-    PHASE_TIME = 30
+    PHASE_TIME = 10
 
 
     # ===========================
@@ -134,11 +134,11 @@ class MapTimer:
                 #
 
                 elif match.status == "MAP_BAN":
-                    pass
-                    # await MapBanManager.auto_ban(
-                    #     session,
-                    #     match
-                    # )
+                    print("HERE!")
+                    await MapBanManager.auto_ban(
+                        session,
+                        match
+                    )
 
                 #
                 # Side timeout

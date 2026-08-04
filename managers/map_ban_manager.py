@@ -6,25 +6,40 @@ import random
 
 class MapBanManager:
 
+    #Error here
     @staticmethod
-    async def ban_map(session, match, player_id, map_name):
+    async def ban_map(session, match, discord_id, map_name):
         # Check if the player is the current captain
         current_captain = await MapBanManager.get_current_captain(session, match)
-        if current_captain.player_id != player_id:
-            raise Exception("Player is not the current captain.")
+        if current_captain.discord_id != discord_id:
+            print("Player not current captain")
+            return False
 
         # Add the map to the banned maps list
         banned_maps = await MapBanManager.get_banned_maps(session, match)
         if map_name in banned_maps:
-            raise Exception("Map has already been banned.")
+            print("Map has already been banned.")
+            return False
 
         available_maps = await MapBanManager.get_available_maps(session, match)
         if map_name not in available_maps:
-            raise Exception("Map is not available for banning.")
+            print("Map is not available for banning.")
+            return False
         
         banned_maps.append(map_name)
         match.banned_maps = banned_maps
         await session.commit()
+        return True
+
+    @staticmethod
+    async def auto_ban(session, match):
+        get_available_maps = await MapBanManager.get_available_maps(session, match)
+        captain = await MapBanManager.get_current_captain(session, match)
+        map = random.choice(get_available_maps)
+        print(captain.discord_id)
+        print(map)
+        MapBanManager.ban_map(session, match, captain.discord_id, map)
+        
 
     @staticmethod
     async def get_current_captain(session, match):
@@ -55,7 +70,7 @@ class MapBanManager:
         for map_name in match.map_pool:
             if map_name not in banned_maps:
                 map_list.append(map_name)
-
+        print(map_list)
         return map_list
 
     @staticmethod

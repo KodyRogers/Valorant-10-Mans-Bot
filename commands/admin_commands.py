@@ -116,8 +116,6 @@ class Admin(commands.Cog):
     async def maptimer(self, ctx, match_id: int = 1):
         
         from managers.map_ban_timer import MapTimer
-            
-        print("GOT HERE")
         await MapTimer.start(match_id)
 
 
