@@ -130,22 +130,22 @@ async def match_info(match_code: str, request: Request, start_timer: bool = Fals
                 team2.append(player_data)
 
            
-        if "discord_id" not in request.session:
-            request.session["next_url"] = str(request.url.path)
-            print(f"User not logged in, redirecting to login. Next URL: {request.session['next_url']}")
-            return RedirectResponse("/login")
-        discord_id = str(request.session.get("discord_id", ""))
-        if await MatchManager.check_in_match(session, match.match_id, str(discord_id)):
+        # if "discord_id" not in request.session:
+        #     request.session["next_url"] = str(request.url.path)
+        #     print(f"User not logged in, redirecting to login. Next URL: {request.session['next_url']}")
+        #     return RedirectResponse("/login")
+        # discord_id = str(request.session.get("discord_id", ""))
+        # if await MatchManager.check_in_match(session, match.match_id, str(discord_id)):
     
-            if match.status == "DRAFTING":
-                return RedirectResponse(f"/match/{match_code}/draft")
-            elif match.status == "VOTE" or match.status == "MAP_BAN" or match.status == "SIDE":
-                return RedirectResponse(f"/match/{match_code}/map-ban")
-            elif match.status == "LIVE":
-                return RedirectResponse(f"/match/{match_code}/live")
-        else:
-            print(f"User {discord_id} is not in match {match_code}, redirecting to login")
-            #return RedirectResponse("/login")
+        #     if match.status == "DRAFTING":
+        #         return RedirectResponse(f"/match/{match_code}/draft")
+        #     elif match.status == "VOTE" or match.status == "MAP_BAN" or match.status == "SIDE":
+        #         return RedirectResponse(f"/match/{match_code}/mapban")
+        #     elif match.status == "LIVE":
+        #         return RedirectResponse(f"/match/{match_code}/live")
+        # else:
+        #     print(f"User {discord_id} is not in match {match_code}, redirecting to login")
+        #     #return RedirectResponse("/login")
 
         return templates.TemplateResponse(
             request,
@@ -180,7 +180,7 @@ async def draft_page(request: Request, match_code: str):
             if match.status == "DRAFTING":
                 return RedirectResponse(f"/match/{match_code}/draft")
             elif match.status == "VOTE" or match.status == "MAP_BAN" or match.status == "SIDE":
-                return RedirectResponse(f"/match/{match_code}/map-ban")
+                return RedirectResponse(f"/match/{match_code}/mapban")
             elif match.status == "LIVE":
                 return RedirectResponse(f"/match/{match_code}/live")
         else:
@@ -336,6 +336,21 @@ async def draft_socket(websocket: WebSocket, match_code: str):
                     success = await MapBanManager.ban_map(session, match, str(websocket.session["discord_id"]), str(data['map']))
                     if success:
                         await MapTimer.start(match.match_id)
+                        await draft_connections.broadcast(
+                            match_code, {"type": "refresh"}
+                        )
+
+            elif data["type"] == "pick_side":
+                async with SessionLocal() as session:
+                    match = await MatchManager.getMatch(session, match_code)
+                    if not match:
+                        await websocket.send_json({
+                            "success": False,
+                            "error": "Match not Found."
+                        })
+                        continue
+                    success = await MapBanManager.choose_side(session, match, str(websocket.session["discord_id"]), str(data["side"]))
+                    if success:
                         await draft_connections.broadcast(
                             match_code, {"type": "refresh"}
                         )

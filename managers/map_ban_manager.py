@@ -162,6 +162,21 @@ class MapBanManager:
         return True
 
     @staticmethod
+    async def choose_side(session, match, discord_id, side):
+
+        results = await session.execute(
+            select(MatchPlayer).where(
+                MatchPlayer.match_id == match.match_id,
+                MatchPlayer.is_captain == True
+            ).order_by(MatchPlayer.team)
+        )
+        current_captains = results.scalars().all()
+
+        if (discord_id != current_captains[0].discord_id)
+
+        pass
+
+    @staticmethod
     async def get_map_ban_state(session, match):
 
         from managers.map_ban_timer import MapTimer
@@ -182,7 +197,17 @@ class MapBanManager:
         available_maps.sort(
             key=lambda m: match.map_pool.index(m["displayName"])
         )
-
+        selected_map = None
+        if match.selected_map != "None":
+            selected_map = next(
+                (
+                    m
+                    for m in ALL_MAPS
+                    if m["displayName"] == match.selected_map
+                ),
+                None
+            )
+        
         return {
             "success": True,
             "status": match.status,
@@ -194,6 +219,7 @@ class MapBanManager:
                 else None
             ),
             "time_remaining": time_remaining,
-            "blue_team": team_1,
-            "red_team": team_2
+            "team_1": team_1,
+            "team_2": team_2,
+            "selected_map": selected_map
         }

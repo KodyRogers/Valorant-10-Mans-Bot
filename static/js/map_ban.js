@@ -308,19 +308,6 @@ function renderMaps(availableMaps) {
         button.appendChild(img);
         button.appendChild(overlay);
 
-        button.addEventListener("click", () => {
-
-            if (button.classList.contains("banned")) {
-                return;
-            }
-
-            socket.send(JSON.stringify({
-                type: "ban_map",
-                map: map.displayName
-            }));
-
-        });
-
         container.appendChild(button);
     }
 }
@@ -333,26 +320,26 @@ function updateSideState(data) {
         data.current_captain;
 
     document.getElementById("selected-map").textContent =
-        data.selected_map;
+        data.selected_map.displayName;
 
     document.getElementById("selected-map-image").src =
-        data.selected_map_splash;
+        data.selected_map.splash;
 
     renderTeam(
         "blue-team",
-        data.blue_team
+        data.team_1
     );
 
     renderTeam(
         "red-team",
-        data.red_team
+        data.team_2
     );
 
 }
 
-function renderTeam(id, players) {
+function renderTeam(containerId, players) {
 
-    const container = document.getElementById(id);
+    const container = document.getElementById(containerId);
 
     container.innerHTML = "";
 
@@ -360,15 +347,11 @@ function renderTeam(id, players) {
 
         const div = document.createElement("div");
 
-        div.className = "team-player";
-
-        if (player.is_captain) {
-            div.classList.add("captain");
-        }
+        div.className = "player";
 
         div.innerHTML = `
             <div class="player-left">
-                ${player.is_captain ? "⭐ " : ""}
+                ${player.is_captain ? "👑 " : ""}
                 ${player.riot_name}#${player.riot_tag}
             </div>
 
@@ -376,10 +359,21 @@ function renderTeam(id, players) {
                 ${player.elo}
             </div>
         `;
-            
+
         container.appendChild(div);
 
     });
+
+    while (container.children.length < 5) {
+
+        const empty = document.createElement("div");
+
+        empty.className = "player empty";
+        empty.textContent = "Empty Slot";
+
+        container.appendChild(empty);
+
+    }
 
 }
 
