@@ -172,8 +172,36 @@ class MapBanManager:
         )
         current_captains = results.scalars().all()
 
-        if (discord_id != current_captains[0].discord_id):
-            print("")
+        if not current_captains:
+            print("Index Error")
+            return False
+
+        if (str(discord_id) != str(current_captains[0].discord_id)):
+            print("Not the Correct Captain")
+            return False
+
+        if side not in ("ATTACK", "DEFENSE"):
+            print("Incorrect side")
+            return False
+
+        match.team_1_starting_side = side
+        await session.commit()
+        return True
+
+    @staticmethod
+    async def random_side(session, match):
+        
+        side = random.choice(["ATTACK", "DEFENSE"])
+        print("GOT HERE")
+        results = await session.execute(
+            select(MatchPlayer).where(
+                MatchPlayer.match_id == match.match_id,
+                MatchPlayer.is_captain == True
+            ).order_by(MatchPlayer.team)
+        )
+        current_captains = results.scalars().all()
+        success = await MapBanManager.choose_side(session, match, str(current_captains[0].discord_id), side)
+        return success
 
     @staticmethod
     async def get_map_ban_state(session, match):
@@ -220,5 +248,6 @@ class MapBanManager:
             "time_remaining": time_remaining,
             "team_1": team_1,
             "team_2": team_2,
-            "selected_map": selected_map
+            "selected_map": selected_map,
+            "team_1_side": match.team_1_starting_side
         }

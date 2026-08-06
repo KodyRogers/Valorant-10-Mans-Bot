@@ -47,7 +47,7 @@ async def update_match_players():
     print(f"Reset draft for match {match_id}.")
 
 async def update_match_status():
-    match_id = 2
+    match_id = 1
     async with SessionLocal() as session:
     
         await session.execute(
@@ -60,8 +60,22 @@ async def update_match_status():
 
     print(f"updated status for match {match_id}.")
 
+async def update_match_side():
+    match_id = 1
+    async with SessionLocal() as session:
+    
+        await session.execute(
+            update(Match).where(
+                Match.match_id == match_id
+            ).values(team_1_starting_side="DEFENSE")
+        )
+        
+        await session.commit()
+
+    print(f"updated side for match {match_id}.")
+
 async def main():
-    await update_match_status()
+    await update_match_side()
     #await update_match_players()
     
 

@@ -20,6 +20,7 @@ from managers.draft_manager import DraftManager
 from managers.draft_timer import DraftTimer
 from managers.websocket_manager import draft_connections
 from managers.map_ban_timer import MapTimer
+from managers.live_manager import LiveManager
 
 from models import Player
 from routes.pick_request import PickRequest
@@ -215,18 +216,33 @@ async def map_ban_page(request: Request, match_code: str):
 @app.get("/match/{match_code}/live")
 async def live_match_page(request: Request, match_code: str):
 
+    from managers.map_ban_manager import ALL_MAPS
+
     async with SessionLocal() as session:
 
         match = await MatchManager.getMatch(session, match_code)
-
+        team_1 = await MatchManager.get_team_players(session, match.match_id, 1)
+        team_2 = await MatchManager.get_team_players(session, match.match_id, 2)
         if not match:
             return RedirectResponse("/")
+
+        selected_map = next(
+            (
+                m
+                for m in ALL_MAPS
+                if m["displayName"] == match.selected_map
+            ),
+            None
+        )
 
         return templates.TemplateResponse(
             "live.html",
             {
                 "request": request,
-                "match": match
+                "match": match,
+                "team1": team_1,
+                "team2": team_2,
+                "selected_map": selected_map
             }
         )
 
@@ -257,6 +273,19 @@ async def map_ban_state(match_code: str):
             return {"success": False} 
         
         return await MapBanManager.get_map_ban_state(
+            session,
+            match
+        )
+
+@app.get("/match/{match_code}/live/state")
+async def live_state(match_code: str):
+    async with SessionLocal() as session:
+        match = await MatchManager.getMatch(session, match_code)
+
+        if not match:
+            return {"success": False}
+
+        return await LiveManager.get_live_state(
             session,
             match
         )

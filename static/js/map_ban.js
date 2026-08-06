@@ -40,6 +40,11 @@ async function loadBanState() {
     if (!data.success) {
         return;
     }
+    
+    if (data.status == "LIVE") {
+        window.location.href = `/match/${MATCH_CODE}/live`;
+        return;
+    }
 
     setPhase(data.status);
 
@@ -182,22 +187,24 @@ function updateBannedMaps(bannedMaps) {
 /* MAP BANS */
 /* ========================================= */
 
-document.querySelectorAll(".map-card").forEach(card => {
+document.getElementById("map-grid").addEventListener("click", (event) => {
 
-    card.addEventListener("click", () => {
+    const card = event.target.closest(".map-card");
 
-        if (card.classList.contains("banned")) {
-            return;
-        }
+    if (!card) {
+        return;
+    }
 
-        socket.send(JSON.stringify({
+    if (card.classList.contains("banned")) {
+        return;
+    }
 
-            type: "ban_map",
-            map: card.dataset.map
+    socket.send(JSON.stringify({
 
-        }));
+        type: "ban_map",
+        map: card.dataset.map
 
-    });
+    }));
 
 });
 

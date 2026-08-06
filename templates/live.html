@@ -1,19 +1,243 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Live Match</title>
+
+    <meta charset="UTF-8">
+
+    <title>Live Match - {{ match.match_code }}</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', path='css/live.css') }}"
+    >
+
 </head>
 
 <body>
 
-<h1>Live Match</h1>
+<div class="container">
 
-<h2>Match {{ match.match_code }}</h2>
+    <!-- ========================================= -->
+    <!-- HEADER -->
+    <!-- ========================================= -->
 
-<button>Blue Team Won</button>
+    <header class="match-header">
 
-<button>Red Team Won</button>
+        <div>
+
+            <h1>
+
+                Match {{ match.match_code }}
+
+            </h1>
+
+            <p>
+
+                Valorant 10 Mans
+
+            </p>
+
+        </div>
+
+        <div class="match-status live">
+
+            LIVE
+
+        </div>
+
+    </header>
+
+
+    <!-- ========================================= -->
+    <!-- LIVE LAYOUT -->
+    <!-- ========================================= -->
+
+    <section class="live-layout">
+
+        <!-- ========================================= -->
+        <!-- BLUE TEAM -->
+        <!-- ========================================= -->
+
+        <div class="team-card">
+
+            <div class="team-title blue">
+
+                <div class="team-dot"></div>
+
+                <h2>
+
+                    Blue Team
+
+                </h2>
+
+            </div>
+
+            {% for player in team1 %}
+
+            <div class="player">
+
+                <div class="player-left">
+
+                    {% if player.is_captain %}
+                        👑
+                    {% endif %}
+
+                    {{ player.riot_name }}#{{ player.riot_tag }}
+
+                </div>
+
+                <div class="player-elo">
+
+                    {{ player.elo }}
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- ========================================= -->
+        <!-- MAP -->
+        <!-- ========================================= -->
+
+        <div class="map-card">
+
+            <img
+                src="{{ selected_map.splash }}"
+                alt="{{ selected_map.displayName }}"
+            >
+
+            <div class="map-overlay">
+
+                <h2>
+
+                    {{ selected_map.displayName }}
+
+                </h2>
+
+                <div class="starting-side">
+
+                    <span class="label">
+
+                        Blue Team Starting Side
+
+                    </span>
+
+                    <span class="side {% if match.team_1_starting_side == 'ATTACK' %}attack{% else %}defense{% endif %}">
+
+                        {% if match.team_1_starting_side == "ATTACK" %}
+                            ATK
+                        {% else %}
+                            DEF
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ========================================= -->
+        <!-- RED TEAM -->
+        <!-- ========================================= -->
+
+        <div class="team-card">
+
+            <div class="team-title red">
+
+                <div class="team-dot"></div>
+
+                <h2>
+
+                    Red Team
+
+                </h2>
+
+            </div>
+
+            {% for player in team2 %}
+
+            <div class="player">
+
+                <div class="player-left">
+
+                    {% if player.is_captain %}
+                        👑
+                    {% endif %}
+
+                    {{ player.riot_name }}#{{ player.riot_tag }}
+
+                </div>
+
+                <div class="player-elo">
+
+                    {{ player.elo }}
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+
+    <!-- ========================================= -->
+    <!-- REPORT RESULT -->
+    <!-- ========================================= -->
+
+    <section class="report-card">
+
+        <h2>
+
+            Report Match Result
+
+        </h2>
+
+        <p>
+
+            Once the game has ended, click below to automatically verify the result using the Riot API.
+
+        </p>
+
+        <div
+            id="verification-status"
+            class="verification waiting"
+        >
+
+            Waiting for report...
+
+        </div>
+
+        <button
+            id="report-button"
+            class="report-button"
+        >
+
+            Report Match Result
+
+        </button>
+
+    </section>
+
+</div>
+
+<script>
+
+const MATCH_CODE = "{{ match.match_code }}";
+
+</script>
+
+<script src="/static/js/live.js"></script>
 
 </body>
 

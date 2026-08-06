@@ -18,7 +18,7 @@ class MapTimer:
     #
     # Length of each phase
     #
-    PHASE_TIME = 15
+    PHASE_TIME = 3
 
 
     # ===========================
@@ -167,11 +167,21 @@ class MapTimer:
                 #
 
                 elif match.status == "SIDE":
-                    pass
-                    # await MapBanManager.random_side(
-                    #     session,
-                    #     match
-                    # )
+                    success = await MapBanManager.random_side(
+                        session,
+                        match
+                    )
+                    print("Timer Complete")
+
+                    if success:
+                        match.status = "LIVE"
+                        await session.commit()
+                        await draft_connections.broadcast(
+                            match.match_code,
+                            {
+                                "type": "refresh"
+                            }
+                        )
 
         except asyncio.CancelledError:
 

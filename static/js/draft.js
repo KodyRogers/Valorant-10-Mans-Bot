@@ -85,7 +85,7 @@ async function loadDraftState() {
                 redirecting = true;
                 setTimeout(() => {
                     window.location.href = `/match/${MATCH_CODE}/mapban`;
-                }, 10000);
+                }, 5000);
             }
 
         return;
