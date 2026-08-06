@@ -7,7 +7,8 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Integer,
-    String
+    String,
+    UniqueConstraint
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.mutable import MutableList
@@ -183,6 +184,14 @@ class Match(Base):
 class MatchPlayer(Base):
     __tablename__ = "match_players"
 
+    __table_args__ = (
+        UniqueConstraint(
+            "match_id",
+            "discord_id",
+            name="uq_match_player"
+        ),
+    )
+    
     id = Column(
         Integer,
         primary_key=True,
