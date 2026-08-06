@@ -131,22 +131,22 @@ async def match_info(match_code: str, request: Request, start_timer: bool = Fals
                 team2.append(player_data)
 
            
-        # if "discord_id" not in request.session:
-        #     request.session["next_url"] = str(request.url.path)
-        #     print(f"User not logged in, redirecting to login. Next URL: {request.session['next_url']}")
-        #     return RedirectResponse("/login")
-        # discord_id = str(request.session.get("discord_id", ""))
-        # if await MatchManager.check_in_match(session, match.match_id, str(discord_id)):
+        if "discord_id" not in request.session:
+            request.session["next_url"] = str(request.url.path)
+            print(f"User not logged in, redirecting to login. Next URL: {request.session['next_url']}")
+            return RedirectResponse("/login")
+        discord_id = str(request.session.get("discord_id", ""))
+        if await MatchManager.check_in_match(session, match.match_id, str(discord_id)):
     
-        #     if match.status == "DRAFTING":
-        #         return RedirectResponse(f"/match/{match_code}/draft")
-        #     elif match.status == "VOTE" or match.status == "MAP_BAN" or match.status == "SIDE":
-        #         return RedirectResponse(f"/match/{match_code}/mapban")
-        #     elif match.status == "LIVE":
-        #         return RedirectResponse(f"/match/{match_code}/live")
-        # else:
-        #     print(f"User {discord_id} is not in match {match_code}, redirecting to login")
-        #     #return RedirectResponse("/login")
+            if match.status == "DRAFTING":
+                return RedirectResponse(f"/match/{match_code}/draft")
+            elif match.status == "VOTE" or match.status == "MAP_BAN" or match.status == "SIDE":
+                return RedirectResponse(f"/match/{match_code}/mapban")
+            elif match.status == "LIVE":
+                return RedirectResponse(f"/match/{match_code}/live")
+        else:
+            print(f"User {discord_id} is not in match {match_code}, redirecting to login")
+            #return RedirectResponse("/login")
 
         return templates.TemplateResponse(
             request,
@@ -205,6 +205,25 @@ async def map_ban_page(request: Request, match_code: str):
         if not match:
             return RedirectResponse("/")
 
+        # Check if the user is in the match
+        if "discord_id" not in request.session:
+            request.session["next_url"] = str(request.url.path)
+            print(f"User not logged in, redirecting to login. Next URL: {request.session['next_url']}")
+            return RedirectResponse("/login")
+
+        # Check if the user is in the match
+        discord_id = str(request.session.get("discord_id", ""))
+        if not await MatchManager.check_in_match(session, match.match_id, str(discord_id)):
+    
+            if match.status == "DRAFTING":
+                return RedirectResponse(f"/match/{match_code}/draft")
+            elif match.status == "VOTE" or match.status == "MAP_BAN" or match.status == "SIDE":
+                return RedirectResponse(f"/match/{match_code}/mapban")
+            elif match.status == "LIVE":
+                return RedirectResponse(f"/match/{match_code}/live")
+        else:
+            print(f"User {discord_id} is not in match {match_code}, redirecting to login")
+
         return templates.TemplateResponse(
             "map_ban.html",
             {
@@ -225,6 +244,25 @@ async def live_match_page(request: Request, match_code: str):
         team_2 = await MatchManager.get_team_players(session, match.match_id, 2)
         if not match:
             return RedirectResponse("/")
+
+        # Check if the user is in the match
+        if "discord_id" not in request.session:
+            request.session["next_url"] = str(request.url.path)
+            print(f"User not logged in, redirecting to login. Next URL: {request.session['next_url']}")
+            return RedirectResponse("/login")
+
+        # Check if the user is in the match
+        discord_id = str(request.session.get("discord_id", ""))
+        if not await MatchManager.check_in_match(session, match.match_id, str(discord_id)):
+    
+            if match.status == "DRAFTING":
+                return RedirectResponse(f"/match/{match_code}/draft")
+            elif match.status == "VOTE" or match.status == "MAP_BAN" or match.status == "SIDE":
+                return RedirectResponse(f"/match/{match_code}/mapban")
+            elif match.status == "LIVE":
+                return RedirectResponse(f"/match/{match_code}/live")
+        else:
+            print(f"User {discord_id} is not in match {match_code}, redirecting to login")
 
         selected_map = next(
             (

@@ -1,0 +1,12 @@
+uvicorn
+discord
+dotenv
+sqlalchemy
+aiosqlite
+fastapi
+jinja2
+httpcore
+itsdangerous
+requests
+authlib
+httpx
