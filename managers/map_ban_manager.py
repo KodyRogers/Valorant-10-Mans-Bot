@@ -172,9 +172,8 @@ class MapBanManager:
         )
         current_captains = results.scalars().all()
 
-        if (discord_id != current_captains[0].discord_id)
-
-        pass
+        if (discord_id != current_captains[0].discord_id):
+            print("")
 
     @staticmethod
     async def get_map_ban_state(session, match):
