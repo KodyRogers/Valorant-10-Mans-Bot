@@ -18,7 +18,7 @@ class MapTimer:
     #
     # Length of each phase
     #
-    PHASE_TIME = 3
+    PHASE_TIME = 20
 
 
     # ===========================

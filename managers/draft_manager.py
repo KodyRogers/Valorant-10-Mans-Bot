@@ -18,7 +18,7 @@ class DraftManager:
         
         # Get two captains
         captain_1, captain_2 = random.sample(player_list, 2)
-        captain_2 = player_list[9]
+        #captain_2 = player_list[9]
 
 
         remaining_players = []
