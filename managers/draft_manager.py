@@ -17,8 +17,9 @@ class DraftManager:
     async def get_captains(session, player_list):
         
         # Get two captains
-        captain_1, captain_2 = random.sample(player_list, 2)
-        #captain_2 = player_list[9]
+        #captain_1, captain_2 = random.sample(player_list, 2)
+        captain_1 = player_list[0]
+        captain_2 = player_list[9]
 
 
         remaining_players = []

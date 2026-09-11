@@ -139,3 +139,23 @@ class MatchManager:
         )
         match_player = result.scalar_one_or_none()
         return match_player is not None
+
+    @staticmethod
+    async def get_captain_info(session, discord_id: str):
+
+        result = await session.execute(
+            select(Player).where(
+                Player.discord_id == discord_id
+            )
+        )
+        player = result.scalar_one_or_none()
+        if player is None:
+            return None
+
+        captain_info = {
+            "discord_id": discord_id,
+            "riot": player.riot_name + "#" + player.riot_tag,
+            "elo": player.elo
+        }
+        
+        return captain_info

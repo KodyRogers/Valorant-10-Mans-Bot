@@ -234,17 +234,19 @@ class MapBanManager:
                 ),
                 None
             )
-        
+
+        #print(current_captain)
+        if current_captain is not None:
+            current_captain_info = await MatchManager.get_captain_info(session, str(current_captain.discord_id))
+        else:
+            current_captain_info = None
+
         return {
             "success": True,
             "status": match.status,
             "banned_maps": banned_maps,
             "available_maps": available_maps,
-            "current_captain": (
-                current_captain.discord_id
-                if current_captain
-                else None
-            ),
+            "current_captain": current_captain_info,
             "time_remaining": time_remaining,
             "team_1": team_1,
             "team_2": team_2,

@@ -58,7 +58,7 @@ async function loadBanState() {
         updateTimer(data.time_remaining);
         renderMaps(data.available_maps);
         updateMaps(data.banned_maps);
-        updateCurrentCaptain(data.current_captain);
+        updateCurrentCaptain(data.current_captain.riot);
         updateBannedMaps(data.banned_maps);
 
     }
@@ -324,7 +324,7 @@ function updateSideState(data) {
     updateSideTimer(data.time_remaining);
 
     document.getElementById("side-captain").textContent =
-        data.current_captain;
+        data.current_captain.riot;
 
     document.getElementById("selected-map").textContent =
         data.selected_map.displayName;
