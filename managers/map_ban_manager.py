@@ -150,7 +150,7 @@ class MapBanManager:
                                 "Haven", "Icebox" ,"Lotus", "Pearl", "Split", "Sunset", "Summit",]
 
             elif winning_map == "COMPETITIVE POOL":
-                winning_pool = ["Ascent", "Breeze", "Haven", "Lotus", "Split", "Sunset", "Summit",]
+                winning_pool = ["Abyss", "Bind", "Corrode", "Haven", "Lotus", "Sunset", "Summit",]
 
             elif winning_map == "WEEKLY POOL":
                 winning_pool = ["Abyss", "Ascent", "Bind", "Corrode", "Icebox" ,"Lotus", "Summit",]
